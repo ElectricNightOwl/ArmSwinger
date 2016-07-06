@@ -4,7 +4,7 @@ This is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger 
 
 ArmSwinger will be available on the Unity Asset Store soon!
 
-##### License
+#### License
 ArmSwinger is released under the [GNU LGPL v3.0 License](http://choosealicense.com/licenses/lgpl-3.0/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project.  Any modifications of the library itself must be released under LGPLv3 or GPLv3, preferrably through a pull request back to the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/).
 
 ##Contributions welcome!
@@ -149,3 +149,6 @@ Play Area vertical adjustment and Out of Bounds detection are handled by a rayca
 
 ##### Rewind
 If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can both fall down and climb up is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
+
+## Contact
+Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com).
