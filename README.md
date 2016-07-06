@@ -1,6 +1,6 @@
 #ArmSwinger VR Locomotion System
 
-This is an artificial VR locomotion library for Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with little or no disorientation.
+This is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with little or no disorientation.
 
 ArmSwinger will be available on the Unity Asset Store soon!
 
@@ -12,8 +12,8 @@ Think you have an improvement to ArmSwinger?  Pull Requests against the [GitHub 
 
 ##Requirements
 ArmSwinger is tested on...
-* Unity 5.4
-* SteamVR Unity Plugin 1.1.0
+* Unity 5.4 (may work on other versions)
+* SteamVR Unity Plugin 1.1.0 (may work on other versions)
 * HTC Vive
 
 ##Installation
