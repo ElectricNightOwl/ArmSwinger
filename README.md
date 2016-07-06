@@ -76,6 +76,9 @@ The length of the headset raycasts used for play height adjustment and falling/c
 
 If you use too low of a value here, you may have rewind false positives.  If you use too high a number, there may be very minor performance implications.
 
+#####Num Raycasts To Average Across
+Number of Raycasts to average together when determining where to place the play area.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.  Setting this to 1 will disable the feature.
+
 #### Wall Clip Prevention Settings
 #####Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Ground Layer Mask list.
