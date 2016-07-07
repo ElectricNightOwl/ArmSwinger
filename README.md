@@ -5,7 +5,7 @@ This is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger 
 ArmSwinger will be available on the Unity Asset Store soon!
 
 #### License
-ArmSwinger is released under the [GNU LGPL v3.0 License](http://choosealicense.com/licenses/lgpl-3.0/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project.  Any modifications of the library itself must be released under LGPLv3 or GPLv3, preferrably through a pull request back to the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/).
+ArmSwinger is released under the [MIT License](http://choosealicense.com/licenses/mit/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project. 
 
 ##Contributions welcome!
 Think you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.
