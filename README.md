@@ -1,6 +1,6 @@
 #ArmSwinger VR Locomotion System
 
-This is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with little or no disorientation.
+This is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with minimal disorientation.
 
 ArmSwinger will be available on the Unity Asset Store soon!
 
@@ -8,7 +8,7 @@ ArmSwinger will be available on the Unity Asset Store soon!
 ArmSwinger is released under the [MIT License](http://choosealicense.com/licenses/mit/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project. 
 
 ##Contributions welcome!
-Think you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.
+Do you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.
 
 ##Requirements
 ArmSwinger is tested on...
@@ -79,29 +79,49 @@ If you use too low of a value here, you may have rewind false positives.  If you
 #####Num Raycasts To Average Across
 Number of Raycasts to average together when determining where to place the play area.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.  Setting this to 1 will disable the feature.
 
-#### Wall Clip Prevention Settings
+#### Prevent Wall Clipping Settings
 #####Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Ground Layer Mask list.
 
 Enabling this will also create a box collider and a HeadsetCollider script on your headset.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate.  You can also pre-create these, but if you don't ArmSwinger will do it for you.
 
-#### Climbing Prevention
+#### Prevent Climbing Settings
 #####Prevent Climbing
 Prevents the player from climbing walls and steep slopes.
 
 ##### Max Angle Player Can Climb
 Only if Prevent Climbing is enabled.  The maximum angle from the ground to the approached slope that a player can climb.  0 is flat ground, 90 is a vertical wall. 
 
-#### Falling Prevention
+#### Prevent Falling Settings
 #####Prevent Falling
 Prevents the player from falling down steep slopes.
 
 ##### Max Angle Player Can Fall
 Only if Prevent Falling is enabled.  The maximum angle a player can try to descend.  0 is flat ground, 90 is a sheer cliff.
 
-#### Climbing/Falling Prevention Settings
-##### Num Frames OOB Before Rewind
-Only if Prevent Climbing / Falling is enabled.  The number of frames in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
+#### Prevent Wall Walking Settings
+##### Prevent Wall Walking
+Prevents the player from traversing across steep slopes.
+
+Prevent Climbing/Falling only measure the slope of the terrain as it passes under your headset.  Prevent Wall Walking measures a point perpendicular to your path of travel and also controls the slope of terrain you are going across.  This prevents players from approaching a slope as a very gentle angle to overcome the other prevention methods.
+
+##### Max Angle Player Can Wall Walk
+Only if Prevent Wall Walking is enabled.  The maximum angle that a player can wall walk across.  0 is flat ground, 90 is a vertical wall.
+
+Measured perpendicular to the direction of travel, regardless of headset rotation.
+
+#### Prevent Climbing/Falling/Wall Walking Settings
+##### Min Distance Change To Check Angles
+Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance in world units that the player must travel to trigger the Climbing / Falling / Wall Walking checks.  Lower numbers will slightly increase performance but may miss situations that should be rewound.
+
+Since checks are only done every minDistanceChangeToCheckAngles world units, this method ensures that players will get identical results when crossing a given plane regardless of their speed and FPS.  Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
+
+##### Num Checks OOB Before Rewind
+Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
+
+ArmSwinger will keep track of the last numChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
+
+If a player tries to climb a slope that is too steep, they will be able to travel (minDistanceChangeToCheckAngles * numChecksOOBBeforeRewind) world units before a rewind occurs.
 
 ##### Max Stair Height
 Only if Prevent Climbing / Falling is enabled.  The maximum stair height in world units a player can climb or descend without triggering a rewind.  Set to the height of the tallest single step in your scene.
@@ -114,7 +134,7 @@ Only if both Prevent Climbing and Prevent Falling is enabled.  If true, position
 This ensures that when a rewind happens, the player will be moved to a place that they can either climb or descend safely.  For example, say the maxAnglePlayerCanFall is 60 and the maxAnglePlayerCanClimb is 45 and the player descends a 50 degree ramp.  Near the middle of the ramp, they go Out of Bounds (for any reason).  If this feature is disabled, they could be rewound to a position on the ramp where they can only go down but can't climb, possibly trapping the player.  If this feature is enabled, the player will be rewound back to the top of the ramp (the last place the angle was such that they can both fall or climb).
 
 #### Rewind Settings
-##### Min Distance To Save Position
+##### Min Distance Change To Save Position
 Only if a prevention method is enabled.  Minimum distance in world units that the player must travel to trigger another saved rewind position.
 
 The measured distance traveled is a sum of the X and Z coordinate change of the player headset.
@@ -151,4 +171,4 @@ Play Area vertical adjustment and Out of Bounds detection are handled by a rayca
 If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can both fall down and climb up is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
 
 ## Contact
-Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com).
+Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com).  Hoot!
