@@ -8,7 +8,7 @@ ArmSwinger will be available on the Unity Asset Store soon!
 ArmSwinger is released under the [MIT License](http://choosealicense.com/licenses/mit/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project. 
 
 ##Contributions welcome!
-Do you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.
+Do you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.p
 
 ##Requirements
 ArmSwinger is tested on...
@@ -84,6 +84,9 @@ Number of Raycasts to average together when determining where to place the play 
 Prevents players from putting their headset through walls and ground that are in the Ground Layer Mask list.
 
 Enabling this will also create a box collider and a HeadsetCollider script on your headset.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate.  You can also pre-create these, but if you don't ArmSwinger will do it for you.
+
+#####Headset Collider Size
+Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
 
 #### Prevent Climbing Settings
 #####Prevent Climbing
