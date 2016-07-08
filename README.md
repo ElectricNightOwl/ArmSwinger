@@ -119,12 +119,17 @@ Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance 
 
 Since checks are only done every minDistanceChangeToCheckAngles world units, this method ensures that players will get identical results when crossing a given plane regardless of their speed and FPS.  Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
 
-##### Num Checks OOB Before Rewind
+##### Num Climb Fall Checks OOB Before Rewind
 Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
 
-ArmSwinger will keep track of the last numChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
+ArmSwinger will keep track of the last numClimbFallChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
 
 If a player tries to climb a slope that is too steep, they will be able to travel (minDistanceChangeToCheckAngles * numChecksOOBBeforeRewind) world units before a rewind occurs.
+
+##### Num Wall Walk Checks OOB Before Rewind
+Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
+
+Works identically to numClimbFallChecksOOBBeforeRewind, but for wall walking detection.
 
 ##### Max Stair Height
 Only if Prevent Climbing / Falling is enabled.  The maximum stair height in world units a player can climb or descend without triggering a rewind.  Set to the height of the tallest single step in your scene.
