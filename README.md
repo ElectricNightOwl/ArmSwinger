@@ -77,7 +77,7 @@ The length of the headset raycasts used for play height adjustment and falling/c
 If you use too low of a value here, you may have rewind false positives.  If you use too high a number, there may be very minor performance implications.
 
 #####Num Raycasts To Average Across
-Number of Raycasts to average together when determining where to place the play area.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.  Setting this to 1 will disable the feature.
+Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
 
 #### Prevent Wall Clipping Settings
 #####Prevent Wall Clipping
@@ -136,10 +136,13 @@ Only if Prevent Climbing / Falling is enabled.  The maximum stair height in worl
 
 If at any time the player ascends/descends more than this value, a rewind is triggered unconditionally.
 
-##### Dont Save Unsafe Positions
+##### Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways.  
 
 This ensures that when a rewind happens, the player will be moved to a place that they can either climb or descend safely.  For example, say the maxAnglePlayerCanFall is 60 and the maxAnglePlayerCanClimb is 45 and the player descends a 50 degree ramp.  Near the middle of the ramp, they go Out of Bounds (for any reason).  If this feature is disabled, they could be rewound to a position on the ramp where they can only go down but can't climb, possibly trapping the player.  If this feature is enabled, the player will be rewound back to the top of the ramp (the last place the angle was such that they can both fall or climb).
+
+##### Dont Save Unsafe Wall Walk Positions
+Only if Prevent Wall Walking is enabled.  If true, positions that are considered wall walking but that haven't yet triggered a rewind won't be saved as possible rewind positions.  If false, the position will be saved anyways and the player might get stuck.
 
 #### Rewind Settings
 ##### Min Distance Change To Save Position
