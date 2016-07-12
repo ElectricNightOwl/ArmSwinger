@@ -5,7 +5,7 @@ ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSw
 ArmSwinger will be available on the Unity Asset Store soon!
 
 #### License
-ArmSwinger is released under the [MIT License](http://choosealicense.com/licenses/mit/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project. 
+ArmSwinger is released under the [MIT License](http://choosealicense.com/licenses/mit/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project.  You may also change the library without contributing changes back to the project.  No attribution is required, but is always appreciated in your credits.
 
 ##Contributions welcome!
 Do you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.p
@@ -27,7 +27,7 @@ ArmSwinger is tested on...
 #####ArmSwinger/scripts/ArmSwinger.cs
 The core ArmSwinger library.  Applied to your CameraRig.  Includes extensive options for tweaking the feel and technical operation of the library.
 #####ArmSwinger/scripts/HeadsetCollider.cs
-Manages the box collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.
+Manages the box collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.  No public settings.
 #####ArmSwinger/examples/ArmSwinger_Test_Scene.unity
 A locomotion test scene that includes ramps, walls, uneven terrain, and other locomotion-centric tests.  You can also reference this scene to understand how ArmSwinger should be configured and applied to a scene.
 #####ArmSwinger/resources/*
@@ -36,7 +36,7 @@ Resources needed for the test environment
 ## Using ArmSwinger
 To begin moving, squeeze both grip buttons and swing your arms in the direction you'd like to go.  Speed and direction is controlled by the speed and rotation of your controllers.  You can move your headset freely while walking without affecting your direction.
 
-ArmSwinger has the optional ability to "rewind" your position if you go "out of bounds".  This is enabled by default.  Reasons for out of bounds include any or all of - headset into a wall, trying to climb a surface that is too steep, trying to fall down a surface that is too steep, and going outside the world.
+ArmSwinger has the optional ability to "rewind" your position if you go "out of bounds".  This is enabled by default.  Reasons for out of bounds include any or all of - headset into a wall, trying to climb a surface that is too steep, trying to fall down a surface that is too steep, trying to wall walk a steep surface, and the headset colliding with geometry.  All of these features are enabled by default with sane values.
 
 Try loading the test scene.  Walk up the different ramps, try to enter the vertical walls cube, walk up and down the stairs.  Get a feel for how the script behaves and then tweak its settings to your liking.
 
@@ -57,7 +57,7 @@ Set all terrain, ground, and walls in your scene to a layer listed in this mask.
 ##### Swing Speed Linear Coefficient
 The distance travelled in the world is the sum of the change in position of both controllers, times this value.
 
-Allows you to speed up or slow down player movement.
+Allows you to speed up or slow down player movement relative to arm movement.  May need to be increased (large open world) or decreased (interior spaces) depending on your scene.
 
 #### Controller in Use Settings
 #####Controller Coefficient When Trigger
@@ -76,7 +76,7 @@ The length of the headset raycasts used for play height adjustment and falling/c
 
 If you use too low of a value here, you may have rewind false positives.  If you use too high a number, there may be very minor performance implications.
 
-#####Num Raycasts To Average Across
+#####Num Height Raycasts To Average Across
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
 
 #### Prevent Wall Clipping Settings
@@ -91,7 +91,7 @@ Note that enabling this feature will create a box collider and a rigidbody on yo
 Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
 
 #####Min Angle To Rewind Due To Wall Clip
-Only if Prevent Wall Cliping is enabled.  Sets the minimum angle a "wall" should be in order to trigger a rewind if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
+Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger a rewind if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
 
 #### Prevent Climbing Settings
 #####Prevent Climbing
@@ -111,7 +111,7 @@ Only if Prevent Falling is enabled.  The maximum angle a player can try to desce
 ##### Prevent Wall Walking
 Prevents the player from traversing across steep slopes.
 
-Prevent Climbing/Falling only measure the slope of the terrain as it passes under your headset.  Prevent Wall Walking measures a point perpendicular to your path of travel and also controls the slope of terrain you are going across.  This prevents players from approaching a slope as a very gentle angle to overcome the other prevention methods.
+Prevent Climbing/Falling only measure the slope of the terrain as it passes under your headset.  Prevent Wall Walking measures a point perpendicular to your path of travel and determines the slope of the terrain you are walking across.  This prevents players from approaching a slope as a very gentle angle to overcome the other prevention methods.
 
 ##### Max Angle Player Can Wall Walk
 Only if Prevent Wall Walking is enabled.  The maximum angle that a player can wall walk across.  0 is flat ground, 90 is a vertical wall.
@@ -139,7 +139,7 @@ Works identically to numClimbFallChecksOOBBeforeRewind, but for wall walking det
 ##### Max Stair Height
 Only if Prevent Climbing / Falling is enabled.  The maximum stair height in world units a player can climb or descend without triggering a rewind.  Set to the height of the tallest single step in your scene.
 
-If at any time the player ascends/descends more than this value, a rewind is triggered unconditionally.
+If at any time the player ascends/descends more than this value, a rewind is triggered unconditionally (no sampling multiple times).
 
 ##### Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways.  
