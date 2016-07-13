@@ -23,7 +23,7 @@ ArmSwinger is tested on...
 4. If you haven't already, create a CameraRig prefab instance from the SteamVR Unity Plugin
 5. Drag and drop the "Assets/ArmSwinger/scripts/ArmSwinger" script onto your CameraRig game object
 
-###Overview of Included Files
+##Overview of Included Files
 #####ArmSwinger/scripts/ArmSwinger.cs
 The core ArmSwinger library.  Applied to your CameraRig.  Includes extensive options for tweaking the feel and technical operation of the library.
 #####ArmSwinger/scripts/HeadsetCollider.cs
@@ -45,7 +45,7 @@ Note that all settings in the inspector include hover text that will briefly exp
 
 All settings are configured to sane defaults.  The one setting you should reconfigure most of the time is the Ground Ray Layer Mask.
 
-#### Locomotion Settings
+### Locomotion Settings
 #####Enable Arm Swinger Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activate by holding both grip buttons. 
 
@@ -59,7 +59,7 @@ The distance travelled in the world is the sum of the change in position of both
 
 Allows you to speed up or slow down player movement relative to arm movement.  May need to be increased (large open world) or decreased (interior spaces) depending on your scene.
 
-#### Controller in Use Settings
+### Controller in Use Settings
 #####Controller Coefficient When Trigger
 A controller's movement is multiplied by this value when the trigger is depressed.  0.0 will cause the controller movement to be ignored when trigger is pulled.  1.0 will still use the controller's entire movement when computing movement speed.  
 
@@ -70,7 +70,7 @@ Enable to ignore a controller's rotation when determining direction while trigge
 
 Useful for allowing the player to keep moving in a pointed direction with a non-triggered controller while doing something else with the triggered controller.
 
-#### Raycast Settings
+### Raycast Settings
 #####Max Ray Case Length
 The length of the headset raycasts used for play height adjustment and falling/climbing prevention. Should be the value of the largest height difference you ever expect the player to come across.
 
@@ -79,7 +79,7 @@ If you use too low of a value here, you may have rewind false positives.  If you
 #####Num Height Raycasts To Average Across
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
 
-#### Prevent Wall Clipping Settings
+### Prevent Wall Clipping Settings
 #####Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Ground Layer Mask list.
 
@@ -93,14 +93,14 @@ Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider use
 #####Min Angle To Rewind Due To Wall Clip
 Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger a rewind if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
 
-#### Prevent Climbing Settings
+### Prevent Climbing Settings
 #####Prevent Climbing
 Prevents the player from climbing walls and steep slopes.
 
 ##### Max Angle Player Can Climb
 Only if Prevent Climbing is enabled.  The maximum angle from the ground to the approached slope that a player can climb.  0 is flat ground, 90 is a vertical wall. 
 
-#### Prevent Falling Settings
+### Prevent Falling Settings
 #####Prevent Falling
 Prevents the player from falling down steep slopes.
 
@@ -118,7 +118,7 @@ Only if Prevent Wall Walking is enabled.  The maximum angle that a player can wa
 
 Measured perpendicular to the direction of travel, regardless of headset rotation.
 
-#### Prevent Climbing/Falling/Wall Walking Settings
+### Prevent Climbing/Falling/Wall Walking Settings
 ##### Min Distance Change To Check Angles
 Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance in world units that the player must travel to trigger the Climbing / Falling / Wall Walking checks.  Lower numbers will slightly increase performance but may miss situations that should be rewound.
 
@@ -149,7 +149,7 @@ This ensures that when a rewind happens, the player will be moved to a place tha
 ##### Dont Save Unsafe Wall Walk Positions
 Only if Prevent Wall Walking is enabled.  If true, positions that are considered wall walking but that haven't yet triggered a rewind won't be saved as possible rewind positions.  If false, the position will be saved anyways and the player might get stuck.
 
-#### Rewind Settings
+### Rewind Settings
 ##### Min Distance Change To Save Position
 Only if a prevention method is enabled.  Minimum distance in world units that the player must travel to trigger another saved rewind position.
 
@@ -160,7 +160,7 @@ Only if a prevention method is enabled.  The number of saved positions to rewind
 
 Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is removed from where they went Out of Bounds.
 
-#### Fade Settings
+### Fade Settings
 ##### Fade On OOB
 Only if a prevention method is enabled.  If true, the screen will fade to black and back to clear when the player goes out of bounds.  If false, the player is instantly teleported without interruption.
 
@@ -178,13 +178,15 @@ Your movement is based on the movement and rotation of both controllers.  When A
 The play area is constantly adjusted based on the position of the headset and the terrain underneath it.  Your physical floor will always match up with the terrain directly under your headset.  This occurs both when moving artificially and with moving physically.
 
 ##### Out of Bounds
-Out of Bounds can be triggered in multiple ways - if the headset tries to go through the terrain, if the player tries to climb a slope that is too steep, if the player tries to fall down a slope that is too steep, or if the headset goes outside the world entirely.  These conditions are toggleable and tweakable.  Alternatively, Out of Bounds can be disabled entirely, leaving it to you to handle these conditions.
+Out of Bounds can be triggered in multiple ways - if the headset tries to go through the terrain, if the player tries to climb a slope that is too steep, if the player tries to fall down a slope that is too steep, if the player tries to walk along a steep slope, or if the headset goes outside the world entirely.  These conditions are toggleable and tweakable.  Alternatively, Out of Bounds can be disabled entirely, leaving it to you to handle these conditions.
 
 ##### The Star of the Show - Vertical Raycast
 Play Area vertical adjustment and Out of Bounds detection are handled by a raycast shot from the middle of the headset, downwards in world space.  The raycast is shot once per frame.  This allows ArmSwinger to place the play area vertically based on where the ray hits.  ArmSwinger also compares this frame's raycast to the last frame's raycast to determine the angle of terrain the user is crossing (and trigger an Out of Bounds condition if appropriate).  These angles are cached over multiple frames and analyzed together before making a rewind decision, allowing the user to traverse small steep obstacles without triggering a rewind.
 
+Prevent Wall Walking uses a second raycast shot just to the left (relative to the direction of movement) of the height raycast.  It then calculates the angle between the two raycast shots to determine if the player is wallwalking.  This raycasy is only shot when an angle check is done, not every frame.
+
 ##### Rewind
-If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can both fall down and climb up is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
+If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can fall down, climb up, and walk across is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
 
 ## Contact
 Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com).  Hoot!
