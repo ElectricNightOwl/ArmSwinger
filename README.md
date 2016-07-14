@@ -46,31 +46,36 @@ Note that all settings in the inspector include hover text that will briefly exp
 All settings are configured to sane defaults.  The one setting you should reconfigure most of the time is the Ground Ray Layer Mask.
 
 ### Locomotion Settings
-#####Enable Arm Swinger Navigation
+#####Enable Arm Swing Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activate by holding both grip buttons. 
 
+### Movement Settings
+#####Swing Speed Both Controllers Coefficient
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  When both controllers are being used for the speed calculation, the distance travelled in the world is the sum of the change in position of both controllers, times this value.
+
+#####Swing Speed Single Controller Coefficient
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  When only one controller is being used for the speed calculation, the distance travelled in the world is change in position of that one controller times this value.
+
+#####Swing Mode
+Only if Arm Swinger Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
+
+######Both Grips Both Controllers
+Activate by squeezing both grips.  Both controllers are used for speed/direction.
+######Left Grip Both Controllers
+Activate by squeezing left grip.  Both controllers are used for speed/direction.
+######Right Grip Both Controllers
+Activate by squeezing right grip.  Both controllers are used for speed/direction.
+######One Grip Same Controller
+Activate by squeezing either grip.  That controller is used for speed/direction.  Can be combined with the other controller.
+######One Grip Same Controller Exclusive
+Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
+
+### Raycast Settings
 #####Ground Ray Layer Mask
 Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating out of bounds.
 
 Set all terrain, ground, and walls in your scene to a layer listed in this mask.  If you are using Wall Clipping Prevention, these surfaces should also have a collider configured.
 
-##### Swing Speed Linear Coefficient
-The distance travelled in the world is the sum of the change in position of both controllers, times this value.
-
-Allows you to speed up or slow down player movement relative to arm movement.  May need to be increased (large open world) or decreased (interior spaces) depending on your scene.
-
-### Controller in Use Settings
-#####Controller Coefficient When Trigger
-A controller's movement is multiplied by this value when the trigger is depressed.  0.0 will cause the controller movement to be ignored when trigger is pulled.  1.0 will still use the controller's entire movement when computing movement speed.  
-
-Useful for slowing the player down while using a controller, or ignoring an in-use controller while other movements occur.
-
-#####Controller Ignore Rotation When Trigger
-Enable to ignore a controller's rotation when determining direction while trigger is held down.
-
-Useful for allowing the player to keep moving in a pointed direction with a non-triggered controller while doing something else with the triggered controller.
-
-### Raycast Settings
 #####Max Ray Case Length
 The length of the headset raycasts used for play height adjustment and falling/climbing prevention. Should be the value of the largest height difference you ever expect the player to come across.
 
