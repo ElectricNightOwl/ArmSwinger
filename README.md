@@ -72,7 +72,7 @@ Activate by squeezing either grip.  That controller is used for speed/direction.
 
 ### Raycast Settings
 #####Ground Ray Layer Mask
-Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating out of bounds.
+Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating angle-based prevention methods.
 
 Set all terrain, ground, and walls in your scene to a layer listed in this mask.  If you are using Wall Clipping Prevention, these surfaces should also have a collider configured.
 
@@ -91,6 +91,9 @@ Prevents players from putting their headset through walls and ground that are in
 Enabling this will also create a box collider and a HeadsetCollider script on your headset.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate.  
 
 Note that enabling this feature will create a box collider and a rigidbody on your headset object.  By default, ArmSwinger will create a box collider component on the headset that is a non-trigger and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+
+#####Wall Clip Layer Mask
+Only if Prevent Wall Clipping is enabled.  Layers that ArmSwinger will consider 'walls' when determining if the headset has gone out of bounds.
 
 #####Headset Collider Size
 Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
