@@ -84,6 +84,13 @@ If you use too low of a value here, you may have rewind false positives.  If you
 #####Num Height Raycasts To Average Across
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
 
+#####Only Height Adjust While Arm Swinging
+Will prevent the camera rig height from being adjusted while the player is not Arm Swinging.
+
+Note that this is tied closely to maxInstantHeightChange.  If the player stops Arm Swinging and walks around the play area physically, angle-based checks are not performed (wall clipping is still enforced).  This allows the player to enter geometry with their perceived "body".  If the player starts Arm Swinging again, a check is immediately done to see what height change needs to occur.  If the required height change is larger than maxInstantHeightChange, a fade (optional) and rewind is performed to a previously-recorded safe position.
+
+This ensures that players (1) do not get stuck in a situation where they are continually rewound and (2) don't have the jarring experience of instantly being teleported several feet up/down from where they're currently standing.  Note also that when this mode is enabled, safe positions are only cached while ArmSwinging, not while physically walking.  This ensures that when the player does start arm swinging again, the position is safe.
+
 ### Prevent Wall Clipping Settings
 #####Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Ground Layer Mask list.
@@ -144,10 +151,10 @@ Only if Prevent Wall Walking is enabled.  The number of checks in a row the play
 
 Works identically to numClimbFallChecksOOBBeforeRewind, but for wall walking detection.
 
-##### Max Stair Height
-Only if Prevent Climbing / Falling is enabled.  The maximum stair height in world units a player can climb or descend without triggering a rewind.  Set to the height of the tallest single step in your scene.
+##### Max Instant Height Change
+The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
 
-If at any time the player ascends/descends more than this value, a rewind is triggered unconditionally (no sampling multiple times).
+If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
 
 ##### Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways.  
