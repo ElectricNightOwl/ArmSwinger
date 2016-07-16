@@ -51,7 +51,7 @@ Enables variable locomotion using the controllers to determine speed and directi
 
 ### Movement Settings
 #####Swing Speed Both Controllers Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  When both controllers are being used for the speed calculation, the distance travelled in the world is the sum of the change in position of both controllers, times this value.
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  When both controllers are being used for the speed calculation, the distance travelled in the world is the average of the change in position of both controllers, times this value.
 
 #####Swing Speed Single Controller Coefficient
 Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  When only one controller is being used for the speed calculation, the distance travelled in the world is change in position of that one controller times this value.
@@ -90,7 +90,7 @@ Prevents players from putting their headset through walls and ground that are in
 
 Enabling this will also create a box collider and a HeadsetCollider script on your headset.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate.  
 
-Note that enabling this feature will create a box collider and a rigidbody on your headset object.  By default, ArmSwinger will create a box collider component on the headset that is a non-triggerr and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+Note that enabling this feature will create a box collider and a rigidbody on your headset object.  By default, ArmSwinger will create a box collider component on the headset that is a non-trigger and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
 
 #####Headset Collider Size
 Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
