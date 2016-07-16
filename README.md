@@ -45,16 +45,24 @@ Note that all settings in the inspector include hover text that will briefly exp
 
 All settings are configured to sane defaults.  The one setting you should reconfigure most of the time is the Ground Ray Layer Mask.
 
-### Locomotion Settings
+### Movement Settings
 #####Enable Arm Swing Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activate by holding both grip buttons. 
 
-### Movement Settings
+#####Controller To Movement Curve
+Only if Arm Swinger Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is Controller Speed For Max Speed (controller movement) and Max Speed (virtual momvement).
+
+#####Controller Speed For Max Speed
+Only if Arm Swinger Navigation is enabled.  The number of world units per second a controller needs to be moving to be considered going max speed.
+
+##### Max Speed
+Only if Arm Swinger Navigation is enabled.  The fastest base speed (in world units) a player can travel when moving controllers at Controller Movement Per Second For Max Speed.  The actual max speed of the player will depend on the both/single controller coefficients you configure.
+
 #####Swing Speed Both Controllers Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  When both controllers are being used for the speed calculation, the distance travelled in the world is the sum of the change in position of both controllers, times this value.
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  Used to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
 
 #####Swing Speed Single Controller Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  When only one controller is being used for the speed calculation, the distance travelled in the world is change in position of that one controller times this value.
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  Used to boost or nerf the player's speed when using a single controller for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
 
 #####Swing Mode
 Only if Arm Swinger Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
@@ -72,7 +80,7 @@ Activate by squeezing either grip.  That controller is used for speed/direction.
 
 ### Raycast Settings
 #####Ground Ray Layer Mask
-Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating out of bounds.
+Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating angle-based prevention methods.
 
 Set all terrain, ground, and walls in your scene to a layer listed in this mask.  If you are using Wall Clipping Prevention, these surfaces should also have a collider configured.
 
@@ -84,13 +92,23 @@ If you use too low of a value here, you may have rewind false positives.  If you
 #####Num Height Raycasts To Average Across
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
 
+#####Only Height Adjust While Arm Swinging
+Will prevent the camera rig height from being adjusted while the player is not Arm Swinging.
+
+Note that this is tied closely to maxInstantHeightChange.  If the player stops Arm Swinging and walks around the play area physically, angle-based checks are not performed (wall clipping is still enforced).  This allows the player to enter geometry with their perceived "body".  If the player starts Arm Swinging again, a check is immediately done to see what height change needs to occur.  If the required height change is larger than maxInstantHeightChange, a fade (optional) and rewind is performed to a previously-recorded safe position.
+
+This ensures that players (1) do not get stuck in a situation where they are continually rewound and (2) don't have the jarring experience of instantly being teleported several feet up/down from where they're currently standing.  Note also that when this mode is enabled, safe positions are only cached while ArmSwinging, not while physically walking.  This ensures that when the player does start arm swinging again, the position is safe.
+
 ### Prevent Wall Clipping Settings
 #####Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Ground Layer Mask list.
 
 Enabling this will also create a box collider and a HeadsetCollider script on your headset.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate.  
 
-Note that enabling this feature will create a box collider and a rigidbody on your headset object.  By default, ArmSwinger will create a box collider component on the headset that is a non-triggerr and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+Note that enabling this feature will create a box collider and a rigidbody on your headset object.  By default, ArmSwinger will create a box collider component on the headset that is a non-trigger and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+
+#####Wall Clip Layer Mask
+Only if Prevent Wall Clipping is enabled.  Layers that ArmSwinger will consider 'walls' when determining if the headset has gone out of bounds.
 
 #####Headset Collider Size
 Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
@@ -141,10 +159,10 @@ Only if Prevent Wall Walking is enabled.  The number of checks in a row the play
 
 Works identically to numClimbFallChecksOOBBeforeRewind, but for wall walking detection.
 
-##### Max Stair Height
-Only if Prevent Climbing / Falling is enabled.  The maximum stair height in world units a player can climb or descend without triggering a rewind.  Set to the height of the tallest single step in your scene.
+##### Max Instant Height Change
+The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
 
-If at any time the player ascends/descends more than this value, a rewind is triggered unconditionally (no sampling multiple times).
+If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
 
 ##### Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways.  
