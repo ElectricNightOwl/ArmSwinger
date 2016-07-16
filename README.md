@@ -160,10 +160,13 @@ Only if a prevention method is enabled.  Minimum distance in world units that th
 
 The measured distance traveled is a sum of the X and Z coordinate change of the player headset.
 
-##### Num Rewind Positions
+##### Num Rewind Positions To Store
+Only if a prevention method is enabled.  The number of saved positions to cache total.  Allows multiple consecutive rewinds to go even further back in time as necessary.  Must be higher than numSavedPositionsToRewind.
+
+##### Num Saved Positions To Rewind
 Only if a prevention method is enabled.  The number of saved positions to rewind when a player goes out of bounds (climbing, falling, or headset through terrain).
 
-Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is removed from where they went Out of Bounds.
+Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is moved from where they went Out of Bounds.
 
 ### Fade Settings
 ##### Fade On OOB
