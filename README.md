@@ -45,16 +45,24 @@ Note that all settings in the inspector include hover text that will briefly exp
 
 All settings are configured to sane defaults.  The one setting you should reconfigure most of the time is the Ground Ray Layer Mask.
 
-### Locomotion Settings
+### Movement Settings
 #####Enable Arm Swing Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activate by holding both grip buttons. 
 
-### Movement Settings
+#####Controller To Movement Curve
+Only if Arm Swinger Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is Controller Speed For Max Speed (controller movement) and Max Speed (virtual momvement).
+
+#####Controller Speed For Max Speed
+Only if Arm Swinger Navigation is enabled.  The number of world units per second a controller needs to be moving to be considered going max speed.
+
+##### Max Speed
+Only if Arm Swinger Navigation is enabled.  The fastest base speed (in world units) a player can travel when moving controllers at Controller Movement Per Second For Max Speed.  The actual max speed of the player will depend on the both/single controller coefficients you configure.
+
 #####Swing Speed Both Controllers Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  When both controllers are being used for the speed calculation, the distance travelled in the world is the average of the change in position of both controllers, times this value.
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  Used to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
 
 #####Swing Speed Single Controller Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  When only one controller is being used for the speed calculation, the distance travelled in the world is change in position of that one controller times this value.
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  Used to boost or nerf the player's speed when using a single controller for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
 
 #####Swing Mode
 Only if Arm Swinger Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
