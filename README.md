@@ -78,6 +78,23 @@ Activate by squeezing either grip.  That controller is used for speed/direction.
 ######One Grip Same Controller Exclusive
 Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
 
+### Inertia Settings
+#####Moving Inertia
+Simulates inertia while arm swinging.  If the controllers change position slower than the moving inertia calculation, the inertia calculation will be used to determine forward movement.
+
+Without Moving Inertia, there is a brief moment of no movement when arm swinging and both controllers reach their apex simultaneously.  This option maintains momentum during that time, creating continuity of movement.
+
+Note that there are NO PHYSICS being performed with this setting.  All interia is purely simulated by ArmSwinger in a linear fashion.
+
+#####Moving Inertia Time To Stop At Max Speed
+Only if Moving Inertia is enabled.  The time it will take to go from maxSpeed to 0 if arm swinging is engaged and the player does not move the controllers.  Speeds lower than maxSpeed will scale their stopping time linearly.
+
+##### Stopping Inertia
+Simulates inertia when arm swinging stops.
+
+##### Stopping Inertia Time To Stop At Max Speed
+Only if Stopping Inertia is enabled).  The time it will take to go from maxSpeed to 0 when arm swinging is disengaged.  Speeds lower than maxSpeed will scale their stopping time linearly.
+
 ### Raycast Settings
 #####Ground Ray Layer Mask
 Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating angle-based prevention methods.
