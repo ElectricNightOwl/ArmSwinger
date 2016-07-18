@@ -78,6 +78,23 @@ Activate by squeezing either grip.  That controller is used for speed/direction.
 ######One Grip Same Controller Exclusive
 Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
 
+### Inertia Settings
+#####Moving Inertia
+Simulates inertia while arm swinging.  If the controllers change position slower than the moving inertia calculation, the inertia calculation will be used to determine forward movement.
+
+Without Moving Inertia, there is a brief moment of no movement when arm swinging and both controllers reach their apex simultaneously.  This option maintains momentum during that time, creating continuity of movement.
+
+Note that there are NO PHYSICS being performed with this setting.  All interia is purely simulated by ArmSwinger in a linear fashion.
+
+#####Moving Inertia Time To Stop At Max Speed
+Only if Moving Inertia is enabled.  The time it will take to go from maxSpeed to 0 if arm swinging is engaged and the player does not move the controllers.  Speeds lower than maxSpeed will scale their stopping time linearly.
+
+##### Stopping Inertia
+Simulates inertia when arm swinging stops.
+
+##### Stopping Inertia Time To Stop At Max Speed
+Only if Stopping Inertia is enabled).  The time it will take to go from maxSpeed to 0 when arm swinging is disengaged.  Speeds lower than maxSpeed will scale their stopping time linearly.
+
 ### Raycast Settings
 #####Ground Ray Layer Mask
 Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating angle-based prevention methods.
@@ -132,14 +149,9 @@ Only if Prevent Falling is enabled.  The maximum angle a player can try to desce
 
 #### Prevent Wall Walking Settings
 ##### Prevent Wall Walking
-Prevents the player from traversing across steep slopes.
+Prevents the player from traversing across steep slopes.  Uses maxAnglePlayerCanClimb when wall walking up, and maxAnglePlayerCanClimb when wall walking down.
 
 Prevent Climbing/Falling only measure the slope of the terrain as it passes under your headset.  Prevent Wall Walking measures a point perpendicular to your path of travel and determines the slope of the terrain you are walking across.  This prevents players from approaching a slope as a very gentle angle to overcome the other prevention methods.
-
-##### Max Angle Player Can Wall Walk
-Only if Prevent Wall Walking is enabled.  The maximum angle that a player can wall walk across.  0 is flat ground, 90 is a vertical wall.
-
-Measured perpendicular to the direction of travel, regardless of headset rotation.
 
 ### Prevent Climbing/Falling/Wall Walking Settings
 ##### Min Distance Change To Check Angles
@@ -157,7 +169,7 @@ If a player tries to climb a slope that is too steep, they will be able to trave
 ##### Num Wall Walk Checks OOB Before Rewind
 Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
 
-Works identically to numClimbFallChecksOOBBeforeRewind, but for wall walking detection.
+Unlike Climb/Fall, we store twice the number of checks needed to trigger a rewind.  Only numWallWalkChecksOOBBeforeRewind of those checks need to agree to trigger a rewind.  This ensures that a player cannot zig-zag their way up a wall by purposely adding a "dissenting" check.
 
 ##### Max Instant Height Change
 The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
