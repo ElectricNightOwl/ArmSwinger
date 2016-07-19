@@ -216,10 +216,10 @@ Only if a prevention method is enabled.  Time in seconds to fade the player view
 
 ## How does it work?
 ### ArmSwing Locomotion
-Your movement is based on the movement and rotation of both controllers.  When ArmSwinger is activated by holding both grip buttons, the script translates any X/Y/Z controller movement into play space movement.  The speed is based on the average movement of the two controllers.  The direciton is the average direction that the controllers are pointing.  Optionally, either controller's movement and rotation can be ignored while it is "in use" (trigger held down).
+Your movement is based on the movement and rotation of both controllers.  When ArmSwinger is activated by holding one or both grip buttons (depending on Swing Mode), the script translates any X/Y/Z controller movement into play space movement.  The speed is based on the movement of one or both controllers.  The direction is the direction that one or both controllers are pointing.
 
 ### Play Area vertical adjustment
-The play area is constantly adjusted based on the position of the headset and the terrain underneath it.  Your physical floor will always match up with the terrain directly under your headset.  This occurs both when moving artificially and with moving physically.
+The play area is constantly adjusted based on the position of the headset and the terrain underneath it.  Your physical floor will always match up with the terrain directly under your headset.  This occurs both when moving artificially and when moving physically.
 
 ### Out of Bounds
 Out of Bounds can be triggered in multiple ways - if the headset tries to go through the terrain, if the player tries to climb a slope that is too steep, if the player tries to fall down a slope that is too steep, if the player tries to walk along a steep slope, or if the headset goes outside the world entirely.  These conditions are toggleable and tweakable.  Alternatively, Out of Bounds can be disabled entirely, leaving it to you to handle these conditions.
@@ -233,4 +233,4 @@ Prevent Wall Walking uses a second raycast shot just to the left (relative to th
 If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can fall down, climb up, and walk across is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
 
 ## Contact
-Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com).  Hoot!
+Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com) or contact us via [Twitter (@ElecNightOwl)](https://twitter.com/ElecNightOwl).  Hoot!
