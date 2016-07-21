@@ -1,5 +1,29 @@
 # ArmSwinger VR Locomotion System
 
+- [ArmSwinger VR Locomotion System](#armswinger-vr-locomotion-system)
+  * [What is this?](#what-is-this)
+  * [Where can I get it?](#where-can-i-get-it)
+  * [License](#license)
+  * [Contributions welcome!](#contributions-welcome)
+  * [Requirements](#requirements)
+  * [**Installation**](#installation)
+  * [Overview of Included Files](#overview-of-included-files)
+  * [Using ArmSwinger](#using-armswinger)
+  * [**ArmSwinger.cs Settings**](#armswingercs-settings)
+    + [Movement Settings](#movement-settings)
+    + [Inertia Settings](#inertia-settings)
+    + [Raycast Settings](#raycast-settings)
+    + [Prevent Wall Clipping Settings](#prevent-wall-clipping-settings)
+    + [Prevent Climbing Settings](#prevent-climbing-settings)
+    + [Prevent Falling Settings](#prevent-falling-settings)
+    + [Prevent Wall Walking Settings](#prevent-wall-walking-settings)
+    + [Prevent Climbing/Falling/Wall Walking Settings](#prevent-climbingfallingwall-walking-settings)
+    + [Rewind Settings](#rewind-settings)
+    + [Fade Settings](#fade-settings)
+  * [Public Functions](#public-functions)
+  * [How does it work?](#how-does-it-work)
+  * [Contact](#contact)
+
 ## What is this?
 ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with minimal disorientation.
 
