@@ -1,5 +1,28 @@
 # ArmSwinger VR Locomotion System
 
+- [**What is this?**](#what-is-this)
+- [Where can I get it?](#where-can-i-get-it)
+- [License](#license)
+- [Contributions welcome!](#contributions-welcome)
+- [Requirements](#requirements)
+- [**Installation**](#installation)
+- [Overview of Included Files](#overview-of-included-files)
+- [Using ArmSwinger](#using-armswinger)
+- [**ArmSwinger.cs Settings**](#armswingercs-settings)
+  * [Movement Settings](#movement-settings)
+  * [Inertia Settings](#inertia-settings)
+  * [Raycast Settings](#raycast-settings)
+  * [Prevent Wall Clipping Settings](#prevent-wall-clipping-settings)
+  * [Prevent Climbing Settings](#prevent-climbing-settings)
+  * [Prevent Falling Settings](#prevent-falling-settings)
+  * [Prevent Wall Walking Settings](#prevent-wall-walking-settings)
+  * [Prevent Climbing/Falling/Wall Walking Settings](#prevent-climbingfallingwall-walking-settings)
+  * [Rewind Settings](#rewind-settings)
+  * [Fade Settings](#fade-settings)
+- [Public Functions](#public-functions)
+- [How does it work?](#how-does-it-work)
+- [**Contact**](#contact)
+
 ## What is this?
 ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with minimal disorientation.
 
@@ -205,7 +228,7 @@ Only if a prevention method is enabled.  The number of saved positions to rewind
 Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is moved from where they went Out of Bounds.
 
 ### Fade Settings
-#### Fade On OOB
+#### Fade On Rewind
 Only if a prevention method is enabled.  If true, the screen will fade to black and back to clear when the player goes out of bounds.  If false, the player is instantly teleported without interruption.
 
 #### Fade Out Time
@@ -213,6 +236,34 @@ Only if a prevention method is enabled.  Time in seconds to fade the player view
 
 #### Fade In Time
 Only if a prevention method is enabled.  Time in seconds to fade the player view IN once the player position is corrected.  (Default: .2f)
+
+## Public Functions
+These functions may be called from other scripts or events in your scene.  You'll need to find the ArmSwinger component first.
+
+`ArmSwinger armSwinger = GameObject.FindObjectOfType<ArmSwinger>();`
+
+#### armSwinger.triggerRewind()
+Triggers an unconditional manual rewind.
+
+#### armSwinger.moveCameraRig(Vector3 newPosition)
+Safely moves the Camera Rig (play area) to newPosition.  This move will not cause a rewind, and the previous position cache will be cleared.  The position cache will be immediately filled with the destination position.
+
+### Pause Variables
+You may have need to move your player in artificial ways separate from ArmSwinger.  If you use moveCameraRig, the move will be done safely.  If you need to do something more exotic, you can pause/unpause the various prevention features of ArmSwinger.
+
+Note that pausing/unpausing will not affect whether or not the feature is ENABLED globally.  If the feature is enabled and you pause it, the feature will stop working until you unpause.  If the feature is disabled and you pause it, there will be no change in functionality, even when you unpause.
+
+##### armSwinger.preventionsPaused = {True, False}
+Pauses all prevention mechanisms (Climbing, Falling, Wall Walking, Wall Clip)
+
+##### armSwinger.anglePreventionsPaused = {True, False}
+Pauses all angle-based prevention mechanisms (Climbing, Falling, Wall Walking)
+
+##### armSwinger.wallClipPreventionPaused = {True, False}
+Pauses Prevent Wall Clipping, allowing the headset to enter geometry.
+
+##### armSwinger.playAreaHeightAdjustmentPaused = {True, False}
+Pauses play area height adjustment while standing still.  Play area height will still be adjusted while arm swinging.  This functions identically to onlyHeightAdjustWhileArmSwinging.
 
 ## How does it work?
 ### ArmSwing Locomotion
