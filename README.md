@@ -56,7 +56,7 @@ ArmSwinger is tested on...
 ### ArmSwinger/scripts/ArmSwinger.cs
 The core ArmSwinger library.  Applied to your SteamVR CameraRig.  Includes extensive options for tweaking the feel and technical operation of the library.
 ### ArmSwinger/scripts/HeadsetCollider.cs
-Manages the box collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.  No public settings.
+Manages the sphere collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.  No public settings.
 ### ArmSwinger/examples/ArmSwinger_Test_Scene.unity
 Only in the Unity Asset Store version of ArmSwinger.  A locomotion test scene that includes ramps, walls, uneven terrain, and other locomotion-centric tests.  Includes the world-famous "Wall o' Settings" that allows you to tweak ArmSwinger settings in-game while adjusting look and feel for your own project.  You can also reference this scene to understand how ArmSwinger should be configured and applied to a scene.
 ### ArmSwinger/resources/*
@@ -149,18 +149,31 @@ This ensures that players (1) do not get stuck in a situation where they are con
 #### Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Wall Clip Layer Mask list.
 
-Note that enabling this feature will create a box collider and a rigidbody on the headset object.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate. 
+Note that enabling this feature will create a sphere collider and a rigidbody on the headset object.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate. 
 
-By default, ArmSwinger will create a box collider component on the headset that is a non-trigger and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+By default, ArmSwinger will create a sphere collider component on the headset that is a non-trigger and is of radius headsetColliderRadius.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
 
 #### Wall Clip Layer Mask
 Only if Prevent Wall Clipping is enabled.  Layers that ArmSwinger will consider 'walls' when determining if the headset has gone out of bounds.
 
-#### Headset Collider Size
-Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
+#### Prevent Wall Clipping Mode
+Only if Prevent Wall Clipping is enabled.  Changes how Prevent Wall Clipping reacts when the player clips into a wall.
+######Rewind
+Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
+######Push Back
+Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot enter the wall.
 
-#### Min Angle To Rewind Due To Wall Clip
-Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger a rewind if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
+#### Headset Collider Radius
+Only if Prevent Wall Clipping is enabled.  Sets the radius of the sphere collider used to detect the headset entering geometry.
+
+#### Min Angle To Trigger Prevent Wall Clip
+Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger Prevent Wall Clipping if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
+
+#### Wall Clip Speed Penalty
+Only if Prevent Wall Clipping is enabled.  When players arm swing directly into the wall, their speed will be multiplied by this amount for wallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clipping is active, and prevents the player from seeing through geometry.  Setting this to 0 disables the feature entirely.
+
+#### Wall Clip Speed Penalty Time
+Only if Prevent Wall Clipping is enabled.  Sets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.
 
 ### Prevent Climbing Settings
 #### Prevent Climbing
@@ -205,6 +218,20 @@ The maximum height in world units a player can climb or descend in a single fram
 
 If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
 
+#### Max Instant Height Climb Mode
+Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than maxInstantHeightChange.
+######Rewind
+Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
+######Push Back
+Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+
+#### Max Instant Height Fall Mode
+Only if Prevent Falling is enabled.  Changes how Prevent Falling reacts when a player tried to instantly fall greater than maxInstantHeightChange.
+######Rewind
+Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
+######Push Back
+Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+
 #### Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways and the player might get stuck.
 
@@ -228,9 +255,6 @@ Only if a prevention method is enabled.  The number of saved positions to rewind
 Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is moved from where they went Out of Bounds.
 
 ### Fade Settings
-#### Fade On Rewind
-Only if a prevention method is enabled.  If true, the screen will fade to black and back to clear when the player goes out of bounds.  If false, the player is instantly teleported without interruption.
-
 #### Fade Out Time
 Only if a prevention method is enabled.  Time in seconds to fade the player view OUT if player goes out of bounds (climbing, falling, or headset through terrain).
 
