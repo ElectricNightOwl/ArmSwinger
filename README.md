@@ -17,6 +17,7 @@
   * [Prevent Falling Settings](#prevent-falling-settings)
   * [Prevent Wall Walking Settings](#prevent-wall-walking-settings)
   * [Prevent Climbing/Falling/Wall Walking Settings](#prevent-climbingfallingwall-walking-settings)
+  * [Push Back Override Settings](#push-back-override-settings)
   * [Rewind Settings](#rewind-settings)
   * [Fade Settings](#fade-settings)
 - [Public Functions](#public-functions)
@@ -56,7 +57,7 @@ ArmSwinger is tested on...
 ### ArmSwinger/scripts/ArmSwinger.cs
 The core ArmSwinger library.  Applied to your SteamVR CameraRig.  Includes extensive options for tweaking the feel and technical operation of the library.
 ### ArmSwinger/scripts/HeadsetCollider.cs
-Manages the box collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.  No public settings.
+Manages the sphere collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.  No public settings.
 ### ArmSwinger/examples/ArmSwinger_Test_Scene.unity
 Only in the Unity Asset Store version of ArmSwinger.  A locomotion test scene that includes ramps, walls, uneven terrain, and other locomotion-centric tests.  Includes the world-famous "Wall o' Settings" that allows you to tweak ArmSwinger settings in-game while adjusting look and feel for your own project.  You can also reference this scene to understand how ArmSwinger should be configured and applied to a scene.
 ### ArmSwinger/resources/*
@@ -71,8 +72,8 @@ ArmSwinger has the optional ability to "rewind" your position if you go "out of 
 Note that all settings in the inspector include hover text that will briefly explain what the setting does and what the default is.  This README may contain additional information as to the function and impact of the setting.
 
 All settings are configured to sane defaults.  At a minimum, you should seriously consider customizing the following settings for your project:
-- Ground Ray Layer Mask
-- Wall Clip Layer Mask
+- [Ground Ray Layer Mask](#ground-ray-layer-mask)
+- [Wall Clip Layer Mask](#wall-clip-layer-mask)
 
 ### Movement Settings
 #### Enable Arm Swing Navigation
@@ -141,26 +142,39 @@ Number of Raycasts to average together when determining where to place the play 
 #### Only Height Adjust While Arm Swinging
 Will prevent the camera rig height from being adjusted while the player is not Arm Swinging.
 
-Note that this is tied closely to maxInstantHeightChange.  If the player stops Arm Swinging and walks around the play area physically, angle-based checks are not performed (wall clipping is still enforced).  This allows the player to enter geometry with their perceived "body".  If the player starts Arm Swinging again, a check is immediately done to see what height change needs to occur.  If the required height change is larger than maxInstantHeightChange, a rewind is performed to a previously-recorded safe position.
+Note that this is tied closely to maxInstantHeightChange.  If the player stops Arm Swinging and walks around the play area physically, they are permitted to walk inside geometry around them.  All prevention systems are still active during this time, and attempting to walk into a surface that is too steep to climb (among other reasons) will result in a rewind.
 
-This ensures that players (1) do not get stuck in a situation where they are continually rewound and (2) don't have the jarring experience of instantly being teleported several feet up/down from where they're currently standing.  Note also that when this mode is enabled, safe positions are only cached while ArmSwinging, not while physically walking.  This ensures that when the player does start arm swinging again, the position is safe.
+If the player starts Arm Swinging again, a check is immediately done to see what height change needs to occur.  If the required height change is larger than maxInstantHeightChange, the player view is faded out before the height adjustment is made.  This ensures that players don't have the jarring experience of instantly being teleported several feet up/down from where they're currently standing.
 
 ### Prevent Wall Clipping Settings
 #### Prevent Wall Clipping
 Prevents players from putting their headset through walls and ground that are in the Wall Clip Layer Mask list.
 
-Note that enabling this feature will create a box collider and a rigidbody on the headset object.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate. 
+Note that enabling this feature will create a sphere collider and a rigidbody on the headset object.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate. 
 
-By default, ArmSwinger will create a box collider component on the headset that is a non-trigger and is of size headsetBoxColliderSize.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+By default, ArmSwinger will create a sphere collider component on the headset that is a non-trigger and is of radius headsetColliderRadius.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
 
 #### Wall Clip Layer Mask
 Only if Prevent Wall Clipping is enabled.  Layers that ArmSwinger will consider 'walls' when determining if the headset has gone out of bounds.
 
-#### Headset Collider Size
-Only if Prevent Wall Clipping is enabled.  Sets the size of the box collider used to detect the headset entering geometry.
+#### Prevent Wall Clipping Mode
+Only if Prevent Wall Clipping is enabled.  Changes how Prevent Wall Clipping reacts when the player clips into a wall.
+######Rewind
+Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
+######Push Back
+Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot enter the wall.
 
-#### Min Angle To Rewind Due To Wall Clip
-Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger a rewind if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
+#### Headset Collider Radius
+Only if Prevent Wall Clipping is enabled.  Sets the radius of the sphere collider used to detect the headset entering geometry.
+
+#### Min Angle To Trigger Prevent Wall Clip
+Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger Prevent Wall Clipping if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
+
+#### Wall Clip Speed Coefficient
+Only if Prevent Wall Clipping is enabled.  When players arm swing directly into the wall, their speed will be multiplied by this amount for wallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clipping is active, and prevents the player from seeing through geometry.  Setting this to 1.0 disables the feature entirely.
+
+#### Wall Clip Speed Penalty Time
+Only if Prevent Wall Clipping is enabled.  Sets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.
 
 ### Prevent Climbing Settings
 #### Prevent Climbing
@@ -201,9 +215,23 @@ Only if Prevent Wall Walking is enabled.  The number of checks in a row the play
 Unlike Climb/Fall, we store twice the number of checks needed to trigger a rewind.  Only numWallWalkChecksOOBBeforeRewind of those checks need to agree to trigger a rewind.  This ensures that a player cannot zig-zag their way up a wall by purposely adding a "dissenting" check.
 
 #### Max Instant Height Change
-The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
+Only if Prevent Climbing / Falling or Only Height Adjust While Arm Swinging are enabled.  The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
 
 If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
+
+#### Max Instant Height Climb Mode
+Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than maxInstantHeightChange.
+######Rewind
+Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
+######Push Back
+Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+
+#### Max Instant Height Fall Mode
+Only if Prevent Falling is enabled.  Changes how Prevent Falling reacts when a player tried to instantly fall greater than maxInstantHeightChange.
+######Rewind
+Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
+######Push Back
+Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
 
 #### Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways and the player might get stuck.
@@ -212,6 +240,26 @@ This ensures that when a rewind happens, the player will be moved to a place tha
 
 #### Dont Save Unsafe Wall Walk Positions
 Only if Prevent Wall Walking is enabled.  If true, positions that are considered wall walking but that haven't yet triggered a rewind won't be saved as possible rewind positions.  If false, the position will be saved anyways and the player might get stuck.
+
+### Push Back Override Settings
+Push Back Override will rewind a player to a previous safe position if they continually make a move that results in a push back.  It also helps resolve situations where the player is stuck in a continuous push back loop.
+
+Push Back Override uses a token bucket system to determine if the player should be pushed back or rewound.  If a Prevention method uses Push Back as its mode, the player will get pushed back when attempting a move that would cause them to be out of bounds.  Each of these push backs costs one token from the bucket.
+
+The bucket starts with pushBackOverrideMaxTokens tokens in it, which means it is full.  Each second, pushBackOverrideRefillPerSec are added to the bucket.  In fact, partial tokens are added each frame so that the total across the entire second is pushBackOverrideRefillPerSec.  If the bucket is full and a token needs to be added, it "spills out" and is lost.
+
+When the player does a move that results in a push back, one token is subtracted from the bucket.  As long as there is at least one token in the bucket, the push back happens normally.  If at any point the bucket has less than one token in it but a push back is called for, the player will instead be rewound according to the global rewind settings.
+
+This allows the player to push against a wall or surface a reasonable amount of time without being rewound.  However if they try to continually run into a wall or push their head into the wall, they get rewound.  It also helps handle any unexpected situations where the player gets stuck in a push back loop that they cannot escape from.
+
+#### Push Back Override
+Only if a Prevention method is using mode Push Back.  Uses a token bucket system to determine if a player has been getting pushed back for too long.  Helps players who have gotten stuck in geometry.
+
+#### Push Back Override Refill Per Sec
+Only if Push Back Override is enabled.  The amount of tokens that are added to the bucket every second.  The correct proportion of tokens are added each frame to add up to this number per second.
+
+#### Push Back Override Max Tokens
+Only if Push Back Override is enabled.  The maximum number of tokens in the bucket.  Additional tokens 'spill out' and are lost.
 
 ### Rewind Settings
 #### Min Distance Change To Save Position
@@ -228,9 +276,6 @@ Only if a prevention method is enabled.  The number of saved positions to rewind
 Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is moved from where they went Out of Bounds.
 
 ### Fade Settings
-#### Fade On Rewind
-Only if a prevention method is enabled.  If true, the screen will fade to black and back to clear when the player goes out of bounds.  If false, the player is instantly teleported without interruption.
-
 #### Fade Out Time
 Only if a prevention method is enabled.  Time in seconds to fade the player view OUT if player goes out of bounds (climbing, falling, or headset through terrain).
 
@@ -272,16 +317,18 @@ Your movement is based on the movement and rotation of both controllers.  When A
 ### Play Area vertical adjustment
 The play area is constantly adjusted based on the position of the headset and the terrain underneath it.  Your physical floor will always match up with the terrain directly under your headset.  This occurs both when moving artificially and when moving physically.
 
+This behavior can be overriden when not arm swinging with the Only Height Adjust While Arm Swinging feature.
+
 ### Out of Bounds
 Out of Bounds can be triggered in multiple ways - if the headset tries to go through the terrain, if the player tries to climb a slope that is too steep, if the player tries to fall down a slope that is too steep, if the player tries to walk along a steep slope, or if the headset goes outside the world entirely.  These conditions are toggleable and tweakable.  Alternatively, Out of Bounds can be disabled entirely, leaving it to you to handle these conditions.
 
 ### Vertical Raycast
 Play Area vertical adjustment and Out of Bounds detection are handled by a raycast shot from the middle of the headset, downwards in world space.  The raycast is shot once per frame.  This allows ArmSwinger to place the play area vertically based on where the ray hits.  ArmSwinger also compares this frame's raycast to the last frame's raycast to determine the angle of terrain the user is crossing (and trigger an Out of Bounds condition if appropriate).  These angles are cached over multiple frames and analyzed together before making a rewind decision, allowing the user to traverse small steep obstacles without triggering a rewind.
 
-Prevent Wall Walking uses a second raycast shot just to the left (relative to the direction of movement) of the height raycast.  It then calculates the angle between the two raycast shots to determine if the player is wallwalking.  This raycasy is only shot when an angle check is done, not every frame.
+Prevent Wall Walking uses a second raycast shot just to the left (relative to the direction of movement) of the height raycast.  It then calculates the angle between the two raycast shots to determine if the player is wallwalking.  This raycast is only shot when an angle check is done, not every frame.
 
 ### Rewind
 If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can fall down, climb up, and walk across is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
 
 ## Contact
-Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com) or contact us via [Twitter (@ElecNightOwl)](https://twitter.com/ElecNightOwl).  Hoot!
+Questions?  Comments?  Snide remarks?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com) or contact us via [Twitter (@ElecNightOwl)](https://twitter.com/ElecNightOwl).  Hoot!
