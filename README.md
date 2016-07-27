@@ -72,8 +72,8 @@ ArmSwinger has the optional ability to "rewind" your position if you go "out of 
 Note that all settings in the inspector include hover text that will briefly explain what the setting does and what the default is.  This README may contain additional information as to the function and impact of the setting.
 
 All settings are configured to sane defaults.  At a minimum, you should seriously consider customizing the following settings for your project:
-- Ground Ray Layer Mask
-- Wall Clip Layer Mask
+- [Ground Ray Layer Mask](#ground-ray-layer-mask)
+- [Wall Clip Layer Mask](#wall-clip-layer-mask)
 
 ### Movement Settings
 #### Enable Arm Swing Navigation
@@ -331,4 +331,4 @@ Prevent Wall Walking uses a second raycast shot just to the left (relative to th
 If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can fall down, climb up, and walk across is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
 
 ## Contact
-Questions?  Comments?  Hate mail?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com) or contact us via [Twitter (@ElecNightOwl)](https://twitter.com/ElecNightOwl).  Hoot!
+Questions?  Comments?  Snide remarks?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com) or contact us via [Twitter (@ElecNightOwl)](https://twitter.com/ElecNightOwl).  Hoot!
