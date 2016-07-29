@@ -9,6 +9,7 @@
 - [Overview of Included Files](#overview-of-included-files)
 - [Using ArmSwinger](#using-armswinger)
 - [**ArmSwinger.cs Settings**](#armswingercs-settings)
+  * [Scale Settings](#scale-settings)
   * [Movement Settings](#movement-settings)
   * [Inertia Settings](#inertia-settings)
   * [Raycast Settings](#raycast-settings)
@@ -75,6 +76,19 @@ All settings are configured to sane defaults.  At a minimum, you should seriousl
 - [Ground Ray Layer Mask](#ground-ray-layer-mask)
 - [Wall Clip Layer Mask](#wall-clip-layer-mask)
 
+### Scale Settings
+#### Scale World Units To Camera Rig Scale
+By default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled at to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.
+
+Settings that are affected by this are:
+- [Max Speed](#max-speed)
+- [Max Raycast Length](#max-raycast-length)
+- [Min Distance Change To Check Angles](#min-distance-change-to-check-angles)
+- [Min Distance Change To Save Position](#min-distance-change-to-save-position)
+- [Max Instant Height Change](#max-instant-height-change)
+
+If this feature is enabled, all of the above settings will be treated as meters or meters per second scaled to the X scale of the Camera Rig.
+
 ### Movement Settings
 #### Enable Arm Swing Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Swing Mode. 
@@ -88,6 +102,8 @@ Only if Arm Swinger Navigation is enabled.  The number of world units per second
 #### Max Speed
 Only if Arm Swinger Navigation is enabled.  The fastest base speed (in world units) a player can travel when moving controllers at Controller Movement Per Second For Max Speed.  The actual max speed of the player will depend on the both/single controller coefficients you configure.
 
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+
 #### Swing Speed Both Controllers Coefficient
 Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  Used to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
 
@@ -97,16 +113,16 @@ Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a sin
 #### Swing Mode
 Only if Arm Swinger Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
 
-###### Both Grips Both Controllers
-Activate by squeezing both grips.  Both controllers are used for speed/direction.
-###### Left Grip Both Controllers
-Activate by squeezing left grip.  Both controllers are used for speed/direction.
-###### Right Grip Both Controllers
-Activate by squeezing right grip.  Both controllers are used for speed/direction.
-###### One Grip Same Controller
-Activate by squeezing either grip.  That controller is used for speed/direction.  Can be combined with the other controller.
-###### One Grip Same Controller Exclusive
-Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
+- Both Grips Both Controllers
+ - Activate by squeezing both grips.  Both controllers are used for speed/direction.
+- Left Grip Both Controllers
+ - Activate by squeezing left grip.  Both controllers are used for speed/direction.
+- Right Grip Both Controllers
+ - Activate by squeezing right grip.  Both controllers are used for speed/direction.
+- One Grip Same Controller
+ - Activate by squeezing either grip.  That controller is used for speed/direction.  Can be combined with the other controller.
+- One Grip Same Controller Exclusive
+ - Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
 
 ### Inertia Settings
 #### Moving Inertia
@@ -131,10 +147,12 @@ Layers that ArmSwinger will consider 'the ground' when determining Y movement of
 
 Set all terrain, ground, and walls in your scene to a layer listed in this mask.  If you are using Wall Clipping Prevention, these surfaces should also have a collider configured.
 
-#### Max Ray Case Length
+#### Max Raycast Length
 The length of the headset raycasts used for play height adjustment and falling/climbing prevention. Should be the value of the largest height difference you ever expect the player to come across.
 
 If you use too low of a value here, you may have rewind false positives.  If you use too high a number, there may be very minor performance implications.
+
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
 #### Num Height Raycasts To Average Across
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
@@ -202,6 +220,8 @@ Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance 
 
 Since checks are only done every minDistanceChangeToCheckAngles world units, this method ensures that players will get (mostly) identical results when crossing a given plane regardless of their speed and FPS.  Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
 
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+
 #### Num Climb Fall Checks OOB Before Rewind
 Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
 
@@ -218,6 +238,8 @@ Unlike Climb/Fall, we store twice the number of checks needed to trigger a rewin
 Only if Prevent Climbing / Falling or Only Height Adjust While Arm Swinging are enabled.  The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
 
 If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
+
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
 #### Max Instant Height Climb Mode
 Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than maxInstantHeightChange.
@@ -266,6 +288,8 @@ Only if Push Back Override is enabled.  The maximum number of tokens in the buck
 Only if a prevention method is enabled.  Minimum distance in world units that the player must travel to trigger another saved rewind position.
 
 The measured distance traveled is a sum of the X and Z coordinate change of the player headset.
+
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
 #### Num Rewind Positions To Store
 Only if a prevention method is enabled.  The number of saved positions to cache total.  Allows multiple consecutive rewinds to go even further back in time as necessary.  Must be higher than numSavedPositionsToRewind.
