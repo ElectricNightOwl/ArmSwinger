@@ -10,17 +10,18 @@
 - [Using ArmSwinger](#using-armswinger)
 - [**ArmSwinger.cs Settings**](#armswingercs-settings)
   * [Scale Settings](#scale-settings)
-  * [Movement Settings](#movement-settings)
+  * [Arm Swing Settings](#arm-swing-settings)
+  * [Controller Smoothing Settings](#controller-smoothing)
   * [Inertia Settings](#inertia-settings)
   * [Raycast Settings](#raycast-settings)
-  * [Prevent Wall Clipping Settings](#prevent-wall-clipping-settings)
+  * [Prevent Wall Clip Settings](#prevent-wall-clip-settings)
   * [Prevent Climbing Settings](#prevent-climbing-settings)
   * [Prevent Falling Settings](#prevent-falling-settings)
   * [Prevent Wall Walking Settings](#prevent-wall-walking-settings)
-  * [Prevent Climbing/Falling/Wall Walking Settings](#prevent-climbingfallingwall-walking-settings)
+  * [Instant Height Settings](#instant-height-settings)
+  * [Check Settings](#check-settings)
   * [Push Back Override Settings](#push-back-override-settings)
   * [Rewind Settings](#rewind-settings)
-  * [Fade Settings](#fade-settings)
 - [Public Functions](#public-functions)
 - [How does it work?](#how-does-it-work)
 - [**Contact**](#contact)
@@ -73,45 +74,28 @@ ArmSwinger has the optional ability to "rewind" your position if you go "out of 
 Note that all settings in the inspector include hover text that will briefly explain what the setting does and what the default is.  This README may contain additional information as to the function and impact of the setting.
 
 All settings are configured to sane defaults.  At a minimum, you should seriously consider customizing the following settings for your project:
-- [Ground Ray Layer Mask](#ground-ray-layer-mask)
-- [Wall Clip Layer Mask](#wall-clip-layer-mask)
+- [Raycast - Ground Layer Mask](#raycast-ground-layer-mask)
+- [Prevent Wall Clip - Layer Mask](#prevent-wall-clip-layer-mask)
 
 ### Scale Settings
 #### Scale World Units To Camera Rig Scale
 By default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled at to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.
 
 Settings that are affected by this are:
-- [Max Speed](#max-speed)
-- [Max Raycast Length](#max-raycast-length)
-- [Min Distance Change To Check Angles](#min-distance-change-to-check-angles)
-- [Min Distance Change To Save Position](#min-distance-change-to-save-position)
-- [Max Instant Height Change](#max-instant-height-change)
+- [Arm Swing - Max Speed](#arm-swing-max-speed)
+- [Raycast - Max Length](#raycast-max-length)
+- [Checks - Min Distance Change To Check Angles](#checks-min-distance-change-to-check-angles)
+- [Rewind - Min Distance Change To Save Position](#rewind-min-distance-change-to-save-position)
+- [Instant Height - Max Change](#instant-height-max-change)
 
 If this feature is enabled, all of the above settings will be treated as meters or meters per second scaled to the X scale of the Camera Rig.
 
-### Movement Settings
-#### Enable Arm Swing Navigation
-Enables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Swing Mode. 
+### Arm Swing Settings
+#### Arm Swing - Navigation
+Enables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode.
 
-#### Controller To Movement Curve
-Only if Arm Swinger Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is Controller Speed For Max Speed (controller movement) and Max Speed (virtual momvement).
-
-#### Controller Speed For Max Speed
-Only if Arm Swinger Navigation is enabled.  The number of world units per second a controller needs to be moving to be considered going max speed.
-
-#### Max Speed
-Only if Arm Swinger Navigation is enabled.  The fastest base speed (in world units) a player can travel when moving controllers at Controller Movement Per Second For Max Speed.  The actual max speed of the player will depend on the both/single controller coefficients you configure.
-
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
-
-#### Swing Speed Both Controllers Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  Used to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
-
-#### Swing Speed Single Controller Coefficient
-Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  Used to boost or nerf the player's speed when using a single controller for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
-
-#### Swing Mode
-Only if Arm Swinger Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
+#### Arm Swing - Swing Mode
+Only if Arm Swing Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
 
 - Both Grips Both Controllers
  - Activate by squeezing both grips.  Both controllers are used for speed/direction.
@@ -124,6 +108,45 @@ Only if Arm Swinger Navigation is enabled.  Determines what is necessary to acti
 - One Grip Same Controller Exclusive
  - Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
 
+#### Arm Swing - Controller To Movement Curve
+Only if Arm Swing Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is "Arm Swing - Controller Speed For Max Speed" (controller movement) and "Arm Swing - Max Speed" (virtual momvement).
+
+#### Arm Swing - Controller Speed For Max Speed
+Only if Arm Swing Navigation is enabled.  The number of CameraRig local units per second a controller needs to be moving to be considered going max speed.
+
+#### Arm Swing - Max Speed
+Only if Arm Swing Navigation is enabled.  The fastest base speed (in world units) a player can travel when moving controllers at "Arm Swing - Controller Speed For Max Speed".  The actual max speed of the player will depend on the both/single controller coefficients you configure.
+
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+
+#### Arm Swing - Both Controllers Coefficient
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  Used to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
+
+#### Arm Swing - Single Controller Coefficient
+Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.  Used to boost or nerf the player's speed when using a single controller for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
+
+### Controller Smoothing Settings
+#### Controller Smoothing
+Uses controller movement sampling to help eliminate jerks and unpleasant movement when controllers suddenly change position due to tracking inaccuracies.
+
+ArmSwinger tracks your controllers movement on a frame-to-frame basis by checking the distance between the position this frame and last frame.  If your controllers have a tracking 'hiccup' where they move a large distance over a single frame, ArmSwinger detects that as you swinging REALLY HARD.  When this happens at slow swing speeds, the player is suddenly jerked forward as though they were swinging at armSwingControllerSpeedForMaxSpeed for a single frame.
+
+While the effect isn't terrible on it's own, the results are far worse when movingInertia is enabled.  movingInertia works by using the last frame's movement amount, and then steadily decreasing it over time to simulate momentum.  When the single-frame jerk happens, movingInertia diligency ramps you down from armSwingMaxSpeed to zero.  This manifests to the player as "I was moving very slowing, and suddenly I jerked forward before quickly slowing back down!"  
+
+The purpose of Controller Smoothing is to eliminate this single-frame controller movement anomoly that causes all these issues.
+
+#### Controller Smoothing - Mode
+Only if Controller Smoothing is enabled.  Determines how controller smoothing calculates the smoothed movement value used by arm swinging.
+- Lowest
+ - Use the lowest value in the cache.  Should only be used with small cache sizes.
+- Average
+ - Use the average of all values in the cache.
+- Average Minus Highest
+ - Use the average of all values in the cache, but disregard the highest value.  When a controller jitters, the value change in that frame is almost always higher than normal values and will be discarded.
+ 
+#### Controller Smoothing - Cache Size
+Only if Controller Smoothing is enabled.  Sets the number of calculated controller movements to keep in the cache.  Setting this number too low may allow a jittering controller to cause jerky movements for the player.  Setting this number too high increases lag time from controller movement to camera rig movement.
+
 ### Inertia Settings
 #### Moving Inertia
 Simulates inertia while arm swinging.  If the controllers change position slower than the moving inertia calculation, the inertia calculation will be used to determine forward movement.
@@ -132,176 +155,181 @@ Without Moving Inertia, there is a brief moment of no movement when arm swinging
 
 Note that there are NO PHYSICS being performed with this setting.  All interia is purely simulated by ArmSwinger in a linear fashion.
 
-#### Moving Inertia Time To Stop At Max Speed
-Only if Moving Inertia is enabled.  The time it will take to go from maxSpeed to 0 if arm swinging is engaged and the player does not move the controllers.  Speeds lower than maxSpeed will scale their stopping time linearly.
+#### Moving Inertia - Time To Stop At Max Speed
+Only if Moving Inertia is enabled.  The time it will take to go from armSwingMaxSpeed to 0 if arm swinging is engaged and the player does not move the controllers.  Speeds lower than armSwingMaxSpeed will scale their stopping time linearly.
 
 #### Stopping Inertia
 Simulates inertia when arm swinging stops.
 
-#### Stopping Inertia Time To Stop At Max Speed
-Only if Stopping Inertia is enabled.  The time it will take to go from maxSpeed to 0 when arm swinging is disengaged.  Speeds lower than maxSpeed will scale their stopping time linearly.
+#### Stopping Inertia - Time To Stop At Max Speed
+Only if Stopping Inertia is enabled.  The time it will take to go from armSwingMaxSpeed to 0 when arm swinging is disengaged.  Speeds lower than armSwingMaxSpeed will scale their stopping time linearly.
 
 ### Raycast Settings
-#### Ground Ray Layer Mask
+#### Raycast - Ground Layer Mask
 Layers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating angle-based prevention methods.
 
 Set all terrain, ground, and walls in your scene to a layer listed in this mask.  If you are using Wall Clipping Prevention, these surfaces should also have a collider configured.
 
-#### Max Raycast Length
-The length of the headset raycasts used for play height adjustment and falling/climbing prevention. Should be the value of the largest height difference you ever expect the player to come across.
+#### Raycast - Max Length
+The length of the headset raycasts (in CameraRig local units) used for play height adjustment and falling/climbing prevention. Should be the value of the largest height difference you ever expect the player to come across.
 
-If you use too low of a value here, you may have rewind false positives.  If you use too high a number, there may be very minor performance implications.
+If you use too low of a value here, you may have rewind misses (should have rewound, and didn't).  If you use too high a number, there may be very minor performance implications.
 
 Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
-#### Num Height Raycasts To Average Across
+#### Raycast - Average Height Cache Size
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
 
-#### Only Height Adjust While Arm Swinging
+#### Raycast - Only Height Adjust While Arm Swinging
 Will prevent the camera rig height from being adjusted while the player is not Arm Swinging.
+
+This is primarily a comfort option for those people who dislike the vertical movement while walking physically.
 
 Note that this is tied closely to maxInstantHeightChange.  If the player stops Arm Swinging and walks around the play area physically, they are permitted to walk inside geometry around them.  All prevention systems are still active during this time, and attempting to walk into a surface that is too steep to climb (among other reasons) will result in a rewind.
 
 If the player starts Arm Swinging again, a check is immediately done to see what height change needs to occur.  If the required height change is larger than maxInstantHeightChange, the player view is faded out before the height adjustment is made.  This ensures that players don't have the jarring experience of instantly being teleported several feet up/down from where they're currently standing.
 
-### Prevent Wall Clipping Settings
-#### Prevent Wall Clipping
-Prevents players from putting their headset through walls and ground that are in the Wall Clip Layer Mask list.
+### Prevent Wall Clip Settings
+#### Prevent Wall Clip
+Prevents players from putting their headset through walls and ground that are in the preventWallClipLayerMask list.
 
-Note that enabling this feature will create a sphere collider and a rigidbody on the headset object.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate. 
+Note that enabling this feature will create a sphere collider and a rigidbody on the headset object.  This will allow the headset to collide with ground/terrain and trigger ArmSwinger to rewind when appropriate.  All terrain/ground/objects you want the player to be unable to put their head into should have a non-trigger collider on them.
 
-By default, ArmSwinger will create a sphere collider component on the headset that is a non-trigger and is of radius headsetColliderRadius.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either of these in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clipping.  YMMV.
+By default, ArmSwinger will create a sphere collider component on the headset that is a non-trigger and is of radius preventWallClipHeadsetColliderRadius.  It will also create a rigidbody component on the headset that is non-kinematic with all constraints frozen.  If you already have either a collider (any type) or rigidbody in place, the script will not replace them, but they may not be setup to work well with the rest of Prevent Wall Clip.  YMMV.
 
-#### Wall Clip Layer Mask
-Only if Prevent Wall Clipping is enabled.  Layers that ArmSwinger will consider 'walls' when determining if the headset has gone out of bounds.
+#### Prevent Wall Clip - Layer Mask
+Only if Prevent Wall Clip is enabled.  Layers that ArmSwinger will consider 'walls' when determining if the headset has gone out of bounds.
 
-#### Prevent Wall Clipping Mode
-Only if Prevent Wall Clipping is enabled.  Changes how Prevent Wall Clipping reacts when the player clips into a wall.
-######Rewind
-Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
-######Push Back
-Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot enter the wall.
+Any object that your player might be able to stick their head into should be in a layer that is included in this layer mask.  Walls, floors, crates, doors, hills, etc.
 
-#### Headset Collider Radius
-Only if Prevent Wall Clipping is enabled.  Sets the radius of the sphere collider used to detect the headset entering geometry.
+#### Prevent Wall Clip - Mode
+Only if Prevent Wall Clip is enabled.  Changes how Prevent Wall Clip reacts when the player attempts to clip into a wall.
+- Rewind
+ - Fade out, rewind rewindrewindNumSavedPositionsToRewind postitions, fade back in.
+- Push Back
+ - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot enter the wall.
 
-#### Min Angle To Trigger Prevent Wall Clip
-Only if Prevent Wall Clipping is enabled.  Sets the minimum angle a "wall" should be in order to trigger Prevent Wall Clipping if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
+#### Prevent Wall Clip - Headset Collider Radius
+Only if Prevent Wall Clip is enabled.  Sets the radius of the sphere collider used to detect the headset entering geometry.
 
-#### Wall Clip Speed Coefficient
-Only if Prevent Wall Clipping is enabled.  When players arm swing directly into the wall, their speed will be multiplied by this amount for wallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clipping is active, and prevents the player from seeing through geometry.  Setting this to 1.0 disables the feature entirely.
+#### Prevent Wall Clip - Min Angle To Trigger
+Only if Prevent Wall Clip is enabled.  Sets the minimum angle a "wall" should be in order to trigger Prevent Wall Clip if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
 
-#### Wall Clip Speed Penalty Time
-Only if Prevent Wall Clipping is enabled.  Sets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.
+#### Prevent Wall Clip - Speed Penalty Coefficient
+Only if Prevent Wall Clip is enabled.  When players arm swing directly into the wall, their speed will be multiplied by this amount for preventWallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clip is active, and prevents the player from seeing through geometry.  Setting this to 1.0 disables the feature entirely.
+
+#### Prevent Wall Clip - Speed Penalty Time
+Only if Prevent Wall Clip is enabled.  Sets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.  Each contact with the wall will reset the timer to this value.
 
 ### Prevent Climbing Settings
 #### Prevent Climbing
 Prevents the player from climbing walls and steep slopes.
 
-#### Max Angle Player Can Climb
+#### Prevent Climbing - Max Angle Player Can Climb
 Only if Prevent Climbing is enabled.  The maximum angle from the ground to the approached slope that a player can climb.  0 is flat ground, 90 is a vertical wall. 
 
 ### Prevent Falling Settings
 #### Prevent Falling
 Prevents the player from falling down steep slopes.
 
-#### Max Angle Player Can Fall
+#### Prevent Falling - Max Angle Player Can Fall
 Only if Prevent Falling is enabled.  The maximum angle a player can try to descend.  0 is flat ground, 90 is a sheer cliff.
 
 ### Prevent Wall Walking Settings
 #### Prevent Wall Walking
-Prevents the player from traversing across steep slopes.  Uses maxAnglePlayerCanClimb when wall walking up, and maxAnglePlayerCanClimb when wall walking down.
+Prevents the player from traversing across steep slopes.  Uses preventClimbingMaxAnglePlayerCanClimb when wall walking up, and preventFallingMaxAnglePlayerCanFall when wall walking down.
 
 Prevent Climbing/Falling only measure the slope of the terrain as it passes under your headset.  Prevent Wall Walking measures a point perpendicular to your path of travel and determines the slope of the terrain you are walking across.  This prevents players from approaching a slope as a very gentle angle to overcome the other prevention methods.
 
-### Prevent Climbing/Falling/Wall Walking Settings
-#### Min Distance Change To Check Angles
-Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance in world units that the player must travel to trigger the Climbing / Falling / Wall Walking checks.  Higher numbers will slightly improve performance but may miss situations that should be rewound.
-
-Since checks are only done every minDistanceChangeToCheckAngles world units, this method ensures that players will get (mostly) identical results when crossing a given plane regardless of their speed and FPS.  Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
-
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
-
-#### Num Climb Fall Checks OOB Before Rewind
-Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
-
-ArmSwinger will keep track of the last numClimbFallChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
-
-If a player tries to climb a slope that is too steep, they will be able to travel (minDistanceChangeToCheckAngles * numChecksOOBBeforeRewind) world units before a rewind occurs.
-
-#### Num Wall Walk Checks OOB Before Rewind
-Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
-
-Unlike Climb/Fall, we store twice the number of checks needed to trigger a rewind.  Only numWallWalkChecksOOBBeforeRewind of those checks need to agree to trigger a rewind.  This ensures that a player cannot zig-zag their way up a wall by purposely adding a "dissenting" check.
-
-#### Max Instant Height Change
-Only if Prevent Climbing / Falling or Only Height Adjust While Arm Swinging are enabled.  The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below.  Also affects 'Only Height Adjust While Arm Swinging'.
+### Instant Height Settings
+#### Instant Height - Max Change
+Only if Prevent Climbing / Falling or Only Height Adjust While Arm Swinging are enabled.  The maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below, and prevents jumping over walls or falling off cliffs.  Also affects raycastOnlyHeightAdjustWhileArmSwinging.
 
 If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
 
 Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
-#### Max Instant Height Climb Mode
-Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than maxInstantHeightChange.
-######Rewind
-Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
-######Push Back
-Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+#### Instant Height - Climb Prevention Mode
+Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than instantHeightMaxChange.
+- Rewind
+ - Fade out, rewind rewindNumSavedPositionsToRewind postitions, fade back in.
+- Push Back
+ - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
 
-#### Max Instant Height Fall Mode
-Only if Prevent Falling is enabled.  Changes how Prevent Falling reacts when a player tried to instantly fall greater than maxInstantHeightChange.
-######Rewind
-Fade out, rewind numSavedPositionsToRewind postitions, fade back in.
-######Push Back
-Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+#### Instant Height - Fall Prevention Mode
+Only if Prevent Falling is enabled.  Changes how Prevent Falling reacts when a player tried to instantly fall greater than instantHeightMaxChange.
+- Rewind
+ - Fade out, rewind rewindNumSavedPositionsToRewind postitions, fade back in.
+- Push Back
+ - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
 
-#### Dont Save Unsafe Climb Fall Positions
-Only if both Prevent Climbing and Prevent Falling is enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways and the player might get stuck.
+### Check Settings
+ 
+#### Checks - Min Distance Change To Check Angles
+Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance in world units that the player must travel to trigger the Climbing / Falling / Wall Walking checks.  Higher numbers will slightly improve performance but may miss situations that should be rewound.
 
-This ensures that when a rewind happens, the player will be moved to a place that they can either climb or descend safely.  For example, say the maxAnglePlayerCanFall is 60 and the maxAnglePlayerCanClimb is 45 and the player descends a 50 degree ramp.  Near the middle of the ramp, they go Out of Bounds (for any reason).  If this feature is disabled, they could be rewound to a position on the ramp where they can only go down but can't climb, possibly trapping the player.  If this feature is enabled, the player will be rewound back to the top of the ramp (the last place the angle was such that they can both fall or climb).
+Since checks are only done every checksMinDistanceChangeToCheckAngles world units, this method ensures that players will get (mostly) identical results when crossing a given plane regardless of their speed and FPS.  Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
 
-#### Dont Save Unsafe Wall Walk Positions
-Only if Prevent Wall Walking is enabled.  If true, positions that are considered wall walking but that haven't yet triggered a rewind won't be saved as possible rewind positions.  If false, the position will be saved anyways and the player might get stuck.
+Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+
+#### Checks - Num Climb Fall Checks OOB Before Rewind
+Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
+
+ArmSwinger will keep track of the last numClimbFallChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
+
+If a player tries to climb a slope that is too steep, they will be able to travel (checksMinDistanceChangeToCheckAngles * checksNumClimbFallChecksOOBBeforeRewind) world units (scaled by the Camera Rig's X scale if scaleWorldUnitsToCameraRigScale is enabled) before a rewind occurs.
+
+#### Checks - Num Wall Walk Checks OOB Before Rewind
+Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
+
+Unlike Climb/Fall, we store twice the number of checks needed to trigger a rewind.  Only checksNumClimbFallChecksOOBBeforeRewind of those checks need to agree to trigger a rewind.  This ensures that a player cannot zig-zag their way up a wall by purposely adding a "dissenting" check periodically.
 
 ### Push Back Override Settings
+#### Push Back Override
+Only if a Prevention method is using mode Push Back.  Uses a token bucket system to determine if a player has been getting pushed back for too long.  Also helps players who have gotten stuck in geometry.
+
 Push Back Override will rewind a player to a previous safe position if they continually make a move that results in a push back.  It also helps resolve situations where the player is stuck in a continuous push back loop.
 
 Push Back Override uses a token bucket system to determine if the player should be pushed back or rewound.  If a Prevention method uses Push Back as its mode, the player will get pushed back when attempting a move that would cause them to be out of bounds.  Each of these push backs costs one token from the bucket.
 
-The bucket starts with pushBackOverrideMaxTokens tokens in it, which means it is full.  Each second, pushBackOverrideRefillPerSec are added to the bucket.  In fact, partial tokens are added each frame so that the total across the entire second is pushBackOverrideRefillPerSec.  If the bucket is full and a token needs to be added, it "spills out" and is lost.
+The bucket starts with pushBackOverrideMaxTokens tokens in it, which means it is full.  Each second, pushBackOverrideRefillPerSec are added to the bucket.  In fact, partial tokens are added each frame so that the total across the entire second is pushBackOverrideRefillPerSec.  If the bucket is full (pushBackOverrideMaxTokens) and a token needs to be added, it "spills out" and is lost.
 
 When the player does a move that results in a push back, one token is subtracted from the bucket.  As long as there is at least one token in the bucket, the push back happens normally.  If at any point the bucket has less than one token in it but a push back is called for, the player will instead be rewound according to the global rewind settings.
 
 This allows the player to push against a wall or surface a reasonable amount of time without being rewound.  However if they try to continually run into a wall or push their head into the wall, they get rewound.  It also helps handle any unexpected situations where the player gets stuck in a push back loop that they cannot escape from.
 
-#### Push Back Override
-Only if a Prevention method is using mode Push Back.  Uses a token bucket system to determine if a player has been getting pushed back for too long.  Helps players who have gotten stuck in geometry.
-
-#### Push Back Override Refill Per Sec
+#### Push Back Override - Refill Per Sec
 Only if Push Back Override is enabled.  The amount of tokens that are added to the bucket every second.  The correct proportion of tokens are added each frame to add up to this number per second.
 
-#### Push Back Override Max Tokens
+#### Push Back Override - Max Tokens
 Only if Push Back Override is enabled.  The maximum number of tokens in the bucket.  Additional tokens 'spill out' and are lost.
 
 ### Rewind Settings
-#### Min Distance Change To Save Position
+#### Rewind - Min Distance Change To Save Position
 Only if a prevention method is enabled.  Minimum distance in world units that the player must travel to trigger another saved rewind position.
 
-The measured distance traveled is a sum of the X and Z coordinate change of the player headset.
+The measured distance traveled is a sum of the X and Z coordinate change of the player headset, but not Y.
 
 Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
-#### Num Rewind Positions To Store
-Only if a prevention method is enabled.  The number of saved positions to cache total.  Allows multiple consecutive rewinds to go even further back in time as necessary.  Must be higher than numSavedPositionsToRewind.
+#### Rewind - Dont Save Unsafe Climb Fall Positions
+Only if both Prevent Climbing and Prevent Falling are enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways and the player might get stuck.
 
-#### Num Saved Positions To Rewind
-Only if a prevention method is enabled.  The number of saved positions to rewind when a player goes out of bounds (climbing, falling, or headset through terrain).
+This ensures that when a rewind happens, the player will be moved to a place that they can either climb or descend safely.  For example, say the preventFallingMaxAnglePlayerCanFall is 60 and the preventClimbingMaxAnglePlayerCanClimb is 45 and the player descends a 50 degree ramp.  Near the middle of the ramp, they go Out of Bounds (for any reason).  If this feature is disabled, they could be rewound to a position on the ramp where they can only go down but can't climb, possibly trapping the player.  If this feature is enabled, the player will be rewound back to the top of the ramp (the last place the angle was such that they can both fall or climb).
+
+#### Rewind - Dont Save Unsafe Wall Walk Positions
+Only if Prevent Wall Walking is enabled.  If true, positions that are considered wall walking but that haven't yet triggered a rewind won't be saved as possible rewind positions.  If false, the position will be saved anyways and the player might get stuck.
+
+#### Rewind - Num Positions To Store
+Only if a prevention method is enabled.  The number of saved positions to cache total.  Allows multiple consecutive rewinds to go even further back in time as necessary.  Must be higher than rewindNumSavedPositionsToRewind.
+
+#### Rewind - Num Positions To Rewind
+Only if a prevention method is enabled.  The number of saved positions to rewind when a player goes out of bounds and a rewind is triggered.
 
 Setting to 1 will rewind the player exactly one saved position from where they went Out of Bounds.  Depending on how close to the wall this position was saved, this could result in multiple fade in/outs.  Numbers higher than 1 will increase the distance the player is moved from where they went Out of Bounds.
 
-### Fade Settings
-#### Fade Out Time
-Only if a prevention method is enabled.  Time in seconds to fade the player view OUT if player goes out of bounds (climbing, falling, or headset through terrain).
+#### Rewind - Fade Out Sec
+Only if a prevention method is enabled.  Time in seconds to fade the player view OUT if a rewind is triggered.
 
 #### Fade In Time
 Only if a prevention method is enabled.  Time in seconds to fade the player view IN once the player position is corrected.  (Default: .2f)
@@ -315,12 +343,14 @@ These functions may be called from other scripts or events in your scene.  You'l
 Triggers an unconditional manual rewind.
 
 #### armSwinger.moveCameraRig(Vector3 newPosition)
-Safely moves the Camera Rig (play area) to newPosition.  This move will not cause a rewind, and the previous position cache will be cleared.  The position cache will be immediately filled with the destination position.
+Safely moves the Camera Rig (play area) to newPosition.  This move will not cause a rewind, and the previous position cache will be cleared.
 
 ### Pause Variables
 You may have need to move your player in artificial ways separate from ArmSwinger.  If you use moveCameraRig, the move will be done safely.  If you need to do something more exotic, you can pause/unpause the various prevention features of ArmSwinger.
 
 Note that pausing/unpausing will not affect whether or not the feature is ENABLED globally.  If the feature is enabled and you pause it, the feature will stop working until you unpause.  If the feature is disabled and you pause it, there will be no change in functionality, even when you unpause.
+
+WARNING: These are considered EXPERIMENTAL and are not super-well tested yet.  Good luck.
 
 ##### armSwinger.preventionsPaused = {True, False}
 Pauses all prevention mechanisms (Climbing, Falling, Wall Walking, Wall Clip)
@@ -329,7 +359,7 @@ Pauses all prevention mechanisms (Climbing, Falling, Wall Walking, Wall Clip)
 Pauses all angle-based prevention mechanisms (Climbing, Falling, Wall Walking)
 
 ##### armSwinger.wallClipPreventionPaused = {True, False}
-Pauses Prevent Wall Clipping, allowing the headset to enter geometry.
+Pauses Prevent Wall Clip, allowing the headset to enter geometry.
 
 ##### armSwinger.playAreaHeightAdjustmentPaused = {True, False}
 Pauses play area height adjustment while standing still.  Play area height will still be adjusted while arm swinging.  This functions identically to onlyHeightAdjustWhileArmSwinging.
