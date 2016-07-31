@@ -32,7 +32,7 @@ ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSw
 ## Where can I get it?
 The latest version of ArmSwinger will always be available on [GitHub](https://github.com/ElectricNightOwl/ArmSwinger).
 
-If you'd like to support the continued development of ArmSwinger, a version of the library is also available on the [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/67602) for a small fee.
+If you'd like to support the continued development of ArmSwinger, a version of the library is also available on the [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/67602) for a small fee.  Your purchase on The Unity Asset Store also includes priority e-mail support.
 
 There is no difference in script features, functionality, or documentation between the two versions.  The Unity Asset Store package does include an example scene not available on GitHub.  This scene features a series of locomotion-related obstacles and tests, as well as an in-game ArmSwing settings panel to try different options instantly.
 
