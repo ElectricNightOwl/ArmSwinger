@@ -62,6 +62,8 @@ The core ArmSwinger library.  Applied to your SteamVR CameraRig.  Includes exten
 Manages the sphere collider component on your headset (Camera (eye)).  This component will be auto-created if it's needed and not manually applied.  No public settings.
 ### ArmSwinger/examples/ArmSwinger_Test_Scene.unity
 Only in the Unity Asset Store version of ArmSwinger.  A locomotion test scene that includes ramps, walls, uneven terrain, and other locomotion-centric tests.  Includes the world-famous "Wall o' Settings" that allows you to tweak ArmSwinger settings in-game while adjusting look and feel for your own project.  You can also reference this scene to understand how ArmSwinger should be configured and applied to a scene.
+
+**WARNING**: The test scene uses layers 7 and 8 for ground and walls.  If you open the test scene in an existing project that alters the collision matrix for these layers, ArmSwinger might fail.  It is recommended to open the test scene in a new project.
 ### ArmSwinger/resources/*
 Only in the Unity Asset Store version of ArmSwinger.  Textures, scripts, and other resources needed for the test environment only.
 
