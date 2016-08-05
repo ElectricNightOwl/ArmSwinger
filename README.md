@@ -1,9 +1,10 @@
 # ArmSwinger VR Locomotion System
 
 - [**What is this?**](#what-is-this)
-- [Where can I get it?](#where-can-i-get-it)
+- [I hate reading, can't I just watch a video?](#i-hate-reading-cant-i-just-watch-a-video)
+- [Where can I get ArmSwinger?](#where-can-i-get-armswinger)
 - [License](#license)
-- [Contributions welcome!](#contributions-welcome)
+- [Code contributions welcome!](#code-contributions-welcome)
 - [Requirements](#requirements)
 - [**Installation**](#installation)
 - [Overview of Included Files](#overview-of-included-files)
@@ -29,7 +30,12 @@
 ## What is this?
 ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with minimal disorientation.
 
-## Where can I get it?
+There is a [release trailer](https://www.youtube.com/watch?v=JjZNLGN_k-A) for ArmSwinger that demonstrates many of the major features.
+
+## I hate reading, can't I just watch a video?
+Sure can.  [The ArmSwinger Tutorial series](https://www.youtube.com/playlist?list=PLJKrZBvXUBwawR6mZ0088Sg8rMrdvgYqT) on YouTube covers nearly all the settings shown here.  The videos also give additional background and demonstrations of the various features.
+
+## Where can I get ArmSwinger?
 The latest version of ArmSwinger will always be available on [GitHub](https://github.com/ElectricNightOwl/ArmSwinger).
 
 If you'd like to support the continued development of ArmSwinger, a version of the library is also available on the [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/67602) for a small fee.  Your purchase on The Unity Asset Store also includes priority e-mail support.
@@ -39,7 +45,7 @@ There is no difference in script features, functionality, or documentation betwe
 ## License
 ArmSwinger is released under the [MIT License](http://choosealicense.com/licenses/mit/).  You may use this library in your commercial or personal project and there are no restrictions on what license you use for your own project.  You may also change the library without contributing changes back to the project.  No attribution is required, but is always appreciated in your credits.
 
-## Contributions welcome!
+## Code contributions welcome!
 Do you have an improvement to ArmSwinger?  Pull Requests against the [GitHub project] (https://github.com/ElectricNightOwl/ArmSwinger/) are encouraged!  Submit your changes and they'll be reviewed by Electric Night Owl for inclusion into the master branch.
 
 ## Requirements
