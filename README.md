@@ -2,7 +2,7 @@
 
 - [**What is this?**](#what-is-this)
 - [I hate reading, can't I just watch a video?](#i-hate-reading-cant-i-just-watch-a-video)
-- [Where can I get ArmSwinger?](#where-can-i-get-armswinger)
+- [**Where can I get ArmSwinger?**](#where-can-i-get-armswinger)
 - [License](#license)
 - [Code contributions welcome!](#code-contributions-welcome)
 - [Requirements](#requirements)
@@ -55,8 +55,18 @@ ArmSwinger is tested on...
 * HTC Vive
 
 ## Installation
+[Open Source / GitHub Version](https://github.com/ElectricNightOwl/ArmSwinger/) only:
+
 1. Create an ArmSwinger folder in your project's Assets directory
 2. Download or clone the entire repository into the ArmSwinger folder
+3. Ensure that SteamVR Unity Plugin has been imported into your project
+4. If you haven't already, create a CameraRig prefab instance from the SteamVR Unity Plugin
+5. Drag and drop the "Assets/ArmSwinger/scripts/ArmSwinger" script onto your CameraRig game object
+
+[Unity Asset Store Version](https://www.assetstore.unity3d.com/en/#!/content/67602) only:
+
+1. Browse to the [Unity Asset Store page for ArmSwinger](https://www.assetstore.unity3d.com/en/#!/content/67602)
+2. Click "Download" or "Import", and import all files into your project
 3. Ensure that SteamVR Unity Plugin has been imported into your project
 4. If you haven't already, create a CameraRig prefab instance from the SteamVR Unity Plugin
 5. Drag and drop the "Assets/ArmSwinger/scripts/ArmSwinger" script onto your CameraRig game object
