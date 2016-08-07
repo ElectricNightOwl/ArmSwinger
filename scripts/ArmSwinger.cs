@@ -126,10 +126,10 @@ public class ArmSwinger : MonoBehaviour {
 	public PreventionMode instantHeightFallPreventionMode = PreventionMode.Rewind;
 
 	// Check Settings
-	[Tooltip("Checks - Num Climb Fall Checks OOB Before Rewind\nOnly if Prevent Climbing / Falling is enabled\n\nThe number of checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 10)")]
-	public int checksNumClimbFallChecksOOBBeforeRewind = 10;
-	[Tooltip("Checks - Num Wall Walk Checks OOB Before Rewind\nOnly if Prevent Wall Walking is enabled\n\nThe number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 30)")]
-	public int checksNumWallWalkChecksOOBBeforeRewind = 30;
+	[Tooltip("Checks - Num Climb Fall Checks OOB Before Rewind\nOnly if Prevent Climbing / Falling is enabled\n\nThe number of checks in a row the player must be falling or climbing to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 5)")]
+	public int checksNumClimbFallChecksOOBBeforeRewind = 5;
+	[Tooltip("Checks - Num Wall Walk Checks OOB Before Rewind\nOnly if Prevent Wall Walking is enabled\n\nThe number of checks in a row the player must be considered wall walking to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 15)")]
+	public int checksNumWallWalkChecksOOBBeforeRewind = 15;
 
 	// Push Back Override Settings
 	[Tooltip("Push Back Override\nOnly if a Prevention method is using mode Push Back\n\nUses a token bucket system to determine if a player has been getting pushed back for too long.  Also helps players who have gotten stuck in geometry.  For more information, see the README file on GitHub.\n\n(Default: true)")]
