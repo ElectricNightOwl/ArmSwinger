@@ -102,7 +102,6 @@ By default, several unit- and speed-based settings are in absolute world units r
 Settings that are affected by this are:
 - [Arm Swing - Max Speed](#arm-swing-max-speed)
 - [Raycast - Max Length](#raycast-max-length)
-- [Checks - Min Distance Change To Check Angles](#checks-min-distance-change-to-check-angles)
 - [Rewind - Min Distance Change To Save Position](#rewind-min-distance-change-to-save-position)
 - [Instant Height - Max Change](#instant-height-max-change)
 
@@ -283,22 +282,15 @@ Only if Prevent Falling is enabled.  Changes how Prevent Falling reacts when a p
 
 ### Check Settings
  
-#### Checks - Min Distance Change To Check Angles
-Only if Prevent Climbing / Falling / Wall Walking is enabled.  Minimum distance in world units that the player must travel to trigger the Climbing / Falling / Wall Walking checks.  Higher numbers will slightly improve performance but may miss situations that should be rewound.
-
-Since checks are only done every checksMinDistanceChangeToCheckAngles world units, this method ensures that players will get (mostly) identical results when crossing a given plane regardless of their speed and FPS.  Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
-
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
-
 #### Checks - Num Climb Fall Checks OOB Before Rewind
-Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
+Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a row the player must be falling or climbing to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.  
 
 ArmSwinger will keep track of the last numClimbFallChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
 
-If a player tries to climb a slope that is too steep, they will be able to travel (checksMinDistanceChangeToCheckAngles * checksNumClimbFallChecksOOBBeforeRewind) world units (scaled by the Camera Rig's X scale if scaleWorldUnitsToCameraRigScale is enabled) before a rewind occurs.
+If a player tries to climb a slope that is too steep, they will be able to travel (rewindMinDistanceChangeToSavePosition * checksNumClimbFallChecksOOBBeforeRewind) world units (scaled by the Camera Rig's X scale if scaleWorldUnitsToCameraRigScale is enabled) before a rewind occurs.
 
 #### Checks - Num Wall Walk Checks OOB Before Rewind
-Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
+Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
 
 Unlike Climb/Fall, we store twice the number of checks needed to trigger a rewind.  Only checksNumClimbFallChecksOOBBeforeRewind of those checks need to agree to trigger a rewind.  This ensures that a player cannot zig-zag their way up a wall by purposely adding a "dissenting" check periodically.
 
@@ -327,6 +319,8 @@ Only if Push Back Override is enabled.  The maximum number of tokens in the buck
 Only if a prevention method is enabled.  Minimum distance in world units that the player must travel to trigger another saved rewind position.
 
 The measured distance traveled is a sum of the X and Z coordinate change of the player headset, but not Y.
+
+Note that climb/fall/wall walk checks are only done every rewindMinDistanceChangeToSavePosition world units (so angle checks and rewind saves are sync'd).  This method ensures that players will get (mostly) identical results when crossing a given plane regardless of their speed and FPS. Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
 
 Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
 
