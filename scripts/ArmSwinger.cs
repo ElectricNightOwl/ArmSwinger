@@ -1087,6 +1087,8 @@ public class ArmSwinger : MonoBehaviour {
 
         currentPreventionReason = reason;
 
+        //Debug.Log("ArmSwinger.triggerRewind():: Rewind triggered due to " + reason + " (outOfBounds=" + outOfBounds + ")");
+
 		if (!outOfBounds) {
 			// Special handling for raycastOnlyHeightAdjustWhileArmSwinging (OHAWAS) events where the player walks into geometry and then starts arm swinging.
 			if (reason == PreventionReason.OHAWAS) {
@@ -1101,10 +1103,9 @@ public class ArmSwinger : MonoBehaviour {
 				resetRaycastHitHistory();
 				latestArtificialMovement = 0f;
 				latestArtificialRotation = Quaternion.identity;
-				headsetCenterRaycastHitHistoryPrevention.Clear();
 
-				// If the prevention mode is REWIND and a rewind isn't already pending - fade out, rewind, fade back in
-				if (currentPreventionMode == PreventionMode.Rewind && !rewindInProgress) {
+                // If the prevention mode is REWIND and a rewind isn't already pending - fade out, rewind, fade back in
+                if (currentPreventionMode == PreventionMode.Rewind && !rewindInProgress) {
 					rewindInProgress = true;
 					fadeOut();
 					Invoke("rewindPositionModeRewind", rewindFadeOutSec);
@@ -1609,23 +1610,8 @@ public class ArmSwinger : MonoBehaviour {
 	}
 
 	void resetRaycastHitHistory() {
-		RaycastHit centerRaycastHitHeightSaved = new RaycastHit();
-		bool seedRaycastHitFound = false;
-		if ((currentPreventionReason == PreventionReason.INSTANT_CLIMBING || currentPreventionReason == PreventionReason.INSTANT_FALLING) &&
-			headsetCenterRaycastHitHistoryHeight.Count >= 2) {
-			centerRaycastHitHeightSaved = headsetCenterRaycastHitHistoryHeight[headsetCenterRaycastHitHistoryHeight.Count - 2];
-			seedRaycastHitFound = true;
-		}
-
 		headsetCenterRaycastHitHistoryHeight.Clear();
 		headsetCenterRaycastHitHistoryPrevention.Clear();
-
-
-		if (seedRaycastHitFound) {
-			saveRaycastHit(headsetCenterRaycastHitHistoryHeight, centerRaycastHitHeightSaved, 1);
-		}
-
-
 	}
 
 	void resetRewindPositions() {
