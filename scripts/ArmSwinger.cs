@@ -126,13 +126,10 @@ public class ArmSwinger : MonoBehaviour {
 	public PreventionMode instantHeightFallPreventionMode = PreventionMode.Rewind;
 
 	// Check Settings
-	[SerializeField]
-	[Tooltip("Checks - Min Distance Change To Check Angles\nOnly if Prevent Climbing / Falling / Wall Walking is enabled\n\nMinimum distance in world units that the player must travel to trigger the Climbing / Falling / Wall Walking checks.  Higher numbers will slightly improve performance but may miss situations that should be rewound.\n\n(Default: .025)")]
-	private float _checksMinDistanceChangeToCheckAngles = .025f;
-	[Tooltip("Checks - Num Climb Fall Checks OOB Before Rewind\nOnly if Prevent Climbing / Falling is enabled\n\nThe number of checks in a row the player must be falling or climbing to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 10)")]
-	public int checksNumClimbFallChecksOOBBeforeRewind = 10;
-	[Tooltip("Checks - Num Wall Walk Checks OOB Before Rewind\nOnly if Prevent Wall Walking is enabled\n\nThe number of checks in a row the player must be considered wall walking to trigger a rewind.  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 30)")]
-	public int checksNumWallWalkChecksOOBBeforeRewind = 30;
+	[Tooltip("Checks - Num Climb Fall Checks OOB Before Rewind\nOnly if Prevent Climbing / Falling is enabled\n\nThe number of checks in a row the player must be falling or climbing to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 5)")]
+	public int checksNumClimbFallChecksOOBBeforeRewind = 5;
+	[Tooltip("Checks - Num Wall Walk Checks OOB Before Rewind\nOnly if Prevent Wall Walking is enabled\n\nThe number of checks in a row the player must be considered wall walking to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 15)")]
+	public int checksNumWallWalkChecksOOBBeforeRewind = 15;
 
 	// Push Back Override Settings
 	[Tooltip("Push Back Override\nOnly if a Prevention method is using mode Push Back\n\nUses a token bucket system to determine if a player has been getting pushed back for too long.  Also helps players who have gotten stuck in geometry.  For more information, see the README file on GitHub.\n\n(Default: true)")]
@@ -844,7 +841,7 @@ public class ArmSwinger : MonoBehaviour {
 			bool checkAnglesThisFrame = false;
 			if ((preventClimbing || preventFalling || preventWallWalking) && !outOfBounds) {
 
-				checkAnglesThisFrame = isDistanceFarEnough(previousAngleCheckHeadsetPosition, headsetGameObject.transform.position, checksMinDistanceChangeToCheckAngles);
+				checkAnglesThisFrame = isDistanceFarEnough(previousAngleCheckHeadsetPosition, headsetGameObject.transform.position, rewindMinDistanceChangeToSavePosition);
 
 				// Check for too much travel either up or down (climb a cliff in one bound, or fell off a cliff)
 				// This is fired every frame
@@ -1889,15 +1886,6 @@ public class ArmSwinger : MonoBehaviour {
 		}
 		set {
 			_preventWallClipHeadsetColliderRadius = value;
-		}
-	}
-
-	public float checksMinDistanceChangeToCheckAngles {
-		get {
-			return _checksMinDistanceChangeToCheckAngles * cameraRigScaleModifier;
-		}
-		set {
-			_checksMinDistanceChangeToCheckAngles = value;
 		}
 	}
 
