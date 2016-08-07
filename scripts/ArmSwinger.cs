@@ -50,13 +50,15 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip ("Controller Smoothing - Cache Size\nOnly if Controller Smoothing is enabled\n\nSets the number of calculated controller movements to keep in the cache.  Setting this number too low may allow a jittering controller to cause jerky movements for the player.  Setting this number too high increases lag time from controller movement to camera rig movement.\n\n(Default: 3)")]
 	public int controllerSmoothingCacheSize = 3;
 
-	// Inertia Settings
-	[Tooltip("Moving Inertia\n\nSimulates inertia while arm swinging.  If the controllers change position slower than the moving inertia calculation, the inertia calculation will be used to determine forward movement.\n\n(Default: true)")]
-	public bool movingInertia = true;
+    // Inertia Settings
+    [SerializeField]
+    [Tooltip("Moving Inertia\n\nSimulates inertia while arm swinging.  If the controllers change position slower than the moving inertia calculation, the inertia calculation will be used to determine forward movement.\n\n(Default: true)")]
+	private bool _movingInertia = true;
 	[Tooltip("Moving Inertia - Time To Stop At Max Speed\nOnly if Moving Inertia is enabled\n\nThe time it will take to go from armSwingMaxSpeed to 0 if arm swinging is engaged and the player does not move the controllers.  Speeds lower than armSwingMaxSpeed will scale their stopping time linearly.\n\n(Default: .5)")]
 	public float movingInertiaTimeToStopAtMaxSpeed = .5f;
-	[Tooltip("Stopping Inertia\n\nSimulates inertia when arm swinging stops.\n\n(Default: true)")]
-	public bool stoppingInertia = true;
+    [SerializeField]
+    [Tooltip("Stopping Inertia\n\nSimulates inertia when arm swinging stops.\n\n(Default: true)")]
+	private bool _stoppingInertia = true;
 	[Tooltip("Stopping Inertia - Time To Stop At Max Speed\nOnly if Stopping Inertia is enabled\n\nThe time it will take to go from armSwingMaxSpeed to 0 when arm swinging is disengaged.  Speeds lower than armSwingMaxSpeed will scale their stopping time linearly.\n\n(Default:.35)")]
 	public float stoppingInertiaTimeToStopAtMaxSpeed = .35f;
 
@@ -1925,6 +1927,25 @@ public class ArmSwinger : MonoBehaviour {
 			controllerMovementResultHistory.Clear();
 			_armSwingMode = value;
 		}
+    }
+
+    public bool movingInertia {
+		get {
+			return _movingInertia;
+		}
+		set {
+			latestArtificialMovement = 0f;
+			_movingInertia = value;
+		}
 	}
-	
+
+	public bool stoppingInertia {
+		get {
+			return _stoppingInertia;
+		}
+		set {
+			latestArtificialMovement = 0f;
+			_stoppingInertia = value;
+		}
+	}
 }
