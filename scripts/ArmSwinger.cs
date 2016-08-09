@@ -1142,6 +1142,10 @@ public class ArmSwinger : MonoBehaviour {
 
 		previousAngleCheckHeadsetPosition = headsetGameObject.transform.position;
 
+		if (preventionMode == PreventionMode.PushBack) {
+			seedRaycastHitHistory();
+		}
+		
 		//resetOOB();
 		if (preventionMode == PreventionMode.Rewind) {
 			Invoke("resetOOB", rewindFadeInSec);
@@ -1613,6 +1617,16 @@ public class ArmSwinger : MonoBehaviour {
 		headsetCenterRaycastHitHistoryPrevention.Clear();
 	}
 
+	void seedRaycastHitHistory() {
+		bool didRaycastHit = false;
+		RaycastHit raycastHit = raycast(headsetGameObject.transform.position, Vector3.down, raycastMaxLength, raycastGroundLayerMask, out didRaycastHit);
+
+		if (didRaycastHit) {
+			saveRaycastHit(headsetCenterRaycastHitHistoryHeight, raycastHit, 1);
+		}
+
+	}
+
 	void resetRewindPositions() {
 		cameraRigPreviousPositions.Clear();
 		headsetPreviousLocalPositions.Clear();
@@ -1629,7 +1643,8 @@ public class ArmSwinger : MonoBehaviour {
 		resetRewindPositions();
 
 		cameraRigGameObject.transform.position = newPosition;
-		
+
+		seedRaycastHitHistory();
 		outOfBounds = false;
 		currentPreventionReason = PreventionReason.NONE;
 
