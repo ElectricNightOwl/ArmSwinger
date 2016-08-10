@@ -13,9 +13,11 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("For your reference only, doesn't affect script operation in any way.")]
 	public string GithubProjectAndDocs = "https://github.com/ElectricNightOwl/ArmSwinger";
 
-	// Scale Settings
-	[Tooltip("Scale World Units To Camera Rig Scale\n\nBy default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.\n\n(Default: false)")]
-	public bool scaleWorldUnitsToCameraRigScale = false;
+	// General Settings
+	[Tooltip("General - Scale World Units To Camera Rig Scale\n\nBy default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.\n\n(Default: false)")]
+	public bool generalScaleWorldUnitsToCameraRigScale = false;
+	[Tooltip("General - Auto Adjust Fixed Timestep\n\nIn order for ArmSwinger to handle movement and wall collisions correctly, Time.fixedDeltaTime must be 0.0111 (90 per second) or less.  If this feature is enabled, the setting will be adjusted automatically if it is higher than 0.0111.  If disabled, an error will be generated but the value will not be changed.\n\n(Default: true)")]
+	public bool generalAutoAdjustFixedTimestep = true;
 
 	// Arm Swing Settings
 	[Tooltip("Arm Swing - Navigation\n\nEnables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode. \n\n(Default: true)")]
@@ -225,6 +227,9 @@ public class ArmSwinger : MonoBehaviour {
 	private float previousTimeDeltaTime = 0f;
 	private Vector3 previousAngleCheckCameraRigPosition;
 
+	// ArmSwinger movement
+	private Vector3 nextArmSwingerMovement = Vector3.zero;
+
 	// Inertia curves
 	// WARNING: must be linear for now
 	private AnimationCurve movingInertiaCurve = new AnimationCurve(new Keyframe(0, 1, -1, -1), new Keyframe(1, 0, -1, -1));
@@ -337,6 +342,14 @@ public class ArmSwinger : MonoBehaviour {
 			triggerRewind(PreventionReason.HEADSET);
 			wallClipThisFrame = true;
 		}
+		
+		// If we're not wall clipping, not out of bounds, and arm swinging isn't paused
+		// Update the camera rig position as directed by arm swinging
+		if (!wallClipThisFrame) {
+			transform.position += nextArmSwingerMovement;
+		}
+		// Unconditionally reset next movement
+		nextArmSwingerMovement = Vector3.zero;
 
 		// If we're wall clipping, we don't want the player to be able to arm swing far enough into the wall to see through it
 		// Temporarily nerf their movement speed to fix, then restore when no longer wall clipping.
@@ -368,7 +381,7 @@ public class ArmSwinger : MonoBehaviour {
 
 		// Set scale as necessary (defaults to 1.0)
 		// Doing this in Update() allows the Camera Rig to be scaled during runtime but keep the same ArmSwinger feel
-		if (scaleWorldUnitsToCameraRigScale) {
+		if (generalScaleWorldUnitsToCameraRigScale) {
 			cameraRigScaleModifier = this.transform.localScale.x;
 		}
 
@@ -388,10 +401,6 @@ public class ArmSwinger : MonoBehaviour {
 		if (!outOfBounds && armSwingNavigation && !_armSwingingPaused) {
 			variableArmSwingMotion();
 		}
-
-		// Copy the current positions to the previous slot for next time
-		leftControllerPreviousLocalPosition = leftControllerLocalPosition;
-		rightControllerPreviousLocalPosition = rightControllerLocalPosition;
 
 		// Save this Time.deltaTime for next frame (inertia simulation)
 		previousTimeDeltaTime = Time.deltaTime;
@@ -420,7 +429,12 @@ public class ArmSwinger : MonoBehaviour {
 
 		// Check fixed time setting
 		if (Time.fixedDeltaTime > 1f/90f) {
-			Debug.LogError("ArmSwinger.verifySettings():: Fixed Timestep is set to " + Time.fixedDeltaTime + ".  This will cause stuttering movement when arm swinging.  Consider changing your Fixed Timestep to " + 1f/90f + " (90 steps per second) by going to Edit -> Project Settings -> Time -> Fixed Timestep.");
+			if (generalAutoAdjustFixedTimestep) {
+				Debug.LogWarning("ArmSwinger.verifySettings():: Fixed Timestep is set to " + Time.fixedDeltaTime + ".  Since you have generalAutoAdjustFixedTimestep set to true, ArmSwinger will auto adjust this value to " + 1f / 90f + " (90 steps per second) for you.");
+				Time.fixedDeltaTime = 1f / 90f;
+			} else {
+				Debug.LogError("ArmSwinger.verifySettings():: Fixed Timestep is set to " + Time.fixedDeltaTime + ".  This will cause stuttering movement when arm swinging.  Consider changing your Fixed Timestep to " + 1f / 90f + " (90 steps per second) by going to Edit -> Project Settings -> Time -> Fixed Timestep.");
+			}
 		}
     }
 
@@ -482,7 +496,7 @@ public class ArmSwinger : MonoBehaviour {
 			movementAmount *= wallClipSpeedPenaltyValue;
 
 			// Move forward in the X and Z axis only (no flying!)
-			transform.position += getForwardXZ(movementAmount, movementRotation);
+			nextArmSwingerMovement += getForwardXZ(movementAmount, movementRotation);
 
 			latestArtificialMovement = movementAmount;
 			latestArtificialRotation = movementRotation;
