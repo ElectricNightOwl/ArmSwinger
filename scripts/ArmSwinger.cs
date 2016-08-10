@@ -417,6 +417,11 @@ public class ArmSwinger : MonoBehaviour {
         if (((raycastGroundLayerMask.value & 1 << rightControllerGameObject.layer) != 0) && rightControllerGameObject.GetComponent<Collider>()) {
             Debug.LogWarning("ArmSwinger.verifySettings():: raycastGroundLayerMask includes the layer for your right controller, which also has a a collider on it.  The raycast from the center of the headset downwards will hit your controller if it gets in the way, causing false positive rewinds/pushbacks.  You should change raycastGroundLayerMask to not include the controller's layer, or change the controller to a different layer.");
         }
+
+		// Check fixed time setting
+		if (Time.fixedDeltaTime > 1f/90f) {
+			Debug.LogError("ArmSwinger.verifySettings():: Fixed Timestep is set to " + Time.fixedDeltaTime + ".  This will cause stuttering movement when arm swinging.  Consider changing your Fixed Timestep to " + 1f/90f + " (90 steps per second) by going to Edit -> Project Settings -> Time -> Fixed Timestep.");
+		}
     }
 
         /***** CORE FUNCTIONS *****/
