@@ -336,15 +336,48 @@ public class ArmSwinger : MonoBehaviour {
 	/***** FIXED UPDATE *****/
 	void FixedUpdate() {
 
+		// Set scale as necessary (defaults to 1.0)
+		// Doing this in Update() allows the Camera Rig to be scaled during runtime but keep the same ArmSwinger feel
+		if (generalScaleWorldUnitsToCameraRigScale) {
+			cameraRigScaleModifier = this.transform.localScale.x;
+		}
+
+		// Push Back Override
+		if (pushBackOverride && !rewindInProgress) {
+			incrementPushBackOverride();
+		}
+
+		// Store controller button states
+		getControllerButtons();
+
 		// Check for wall clipping
 		wallClipThisFrame = false;
 		if (preventWallClip && headsetCollider.inGeometry) {
 			triggerRewind(PreventionReason.HEADSET);
 			wallClipThisFrame = true;
 		}
-		
-		// If we're not wall clipping, not out of bounds, and arm swinging isn't paused
-		// Update the camera rig position as directed by arm swinging
+
+		// Save the current controller positions for our use
+		leftControllerLocalPosition = leftControllerGameObject.transform.localPosition;
+		rightControllerLocalPosition = rightControllerGameObject.transform.localPosition;
+
+		// Variable motion based on controller movement
+		if (armSwingNavigation &&
+			!outOfBounds && 
+			!wallClipThisFrame && 
+			!armSwingingPaused && 
+			!rewindInProgress) {
+			nextArmSwingerMovement += variableArmSwingMotion();
+		}
+		else {
+			nextArmSwingerMovement = Vector3.zero;
+		}
+
+		// Save the current controller positions for next frame
+		leftControllerPreviousLocalPosition = leftControllerGameObject.transform.localPosition;
+		rightControllerPreviousLocalPosition = rightControllerGameObject.transform.localPosition;
+
+		// If we're not wall clipping, update the camera rig position as directed by arm swinging
 		if (!wallClipThisFrame) {
 			transform.position += nextArmSwingerMovement;
 		}
@@ -372,38 +405,21 @@ public class ArmSwinger : MonoBehaviour {
 				savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, 2);
 			}
 		}
-	}
-
-	/***** UPDATE *****/
-	void Update() {
-		// Store controller button states
-		getControllerButtons();
-
-		// Set scale as necessary (defaults to 1.0)
-		// Doing this in Update() allows the Camera Rig to be scaled during runtime but keep the same ArmSwinger feel
-		if (generalScaleWorldUnitsToCameraRigScale) {
-			cameraRigScaleModifier = this.transform.localScale.x;
-		}
-
-		// Save the current controller positions for our use
-		leftControllerLocalPosition = leftControllerGameObject.transform.localPosition;
-		rightControllerLocalPosition = rightControllerGameObject.transform.localPosition;
-
-		// Push Back Override
-		if (pushBackOverride && !rewindInProgress) {
-			incrementPushBackOverride();
-		}
 
 		// Adjust the camera rig height, and prevent climbing/falling as configured
 		adjustCameraRig();
 
-		// Variable motion based on controller movement
-		if (!outOfBounds && armSwingNavigation && !_armSwingingPaused) {
-			variableArmSwingMotion();
-		}
-
 		// Save this Time.deltaTime for next frame (inertia simulation)
 		previousTimeDeltaTime = Time.deltaTime;
+	}
+
+	/***** UPDATE *****/
+	void Update() {
+
+
+
+
+
 	}
 
     /***** VERIFY SETTINGS *****/
@@ -440,7 +456,7 @@ public class ArmSwinger : MonoBehaviour {
 
         /***** CORE FUNCTIONS *****/
         // Variable Arm Swing locomotion
-    void variableArmSwingMotion() {
+    Vector3 variableArmSwingMotion() {
 
 		// Initialize movement variables
 		float movementAmount = 0f;
@@ -485,7 +501,7 @@ public class ArmSwinger : MonoBehaviour {
 					ohawasInstantHeightChangeCheck(startSwingingRaycastHit.point.y, lastRaycastHitWhileArmSwinging.point.y);
 					// If we need to rewind, don't arm swing this frame
 					if (currentPreventionReason != PreventionReason.NONE) {
-						return;
+						return Vector3.zero;
 					}
 				}
 			}
@@ -495,15 +511,17 @@ public class ArmSwinger : MonoBehaviour {
 			// A final speed tweak only for use by script internals
 			movementAmount *= wallClipSpeedPenaltyValue;
 
-			// Move forward in the X and Z axis only (no flying!)
-			nextArmSwingerMovement += getForwardXZ(movementAmount, movementRotation);
-
 			latestArtificialMovement = movementAmount;
 			latestArtificialRotation = movementRotation;
+
+			// Move forward in the X and Z axis only (no flying!)
+			return getForwardXZ(movementAmount, movementRotation);
 
 		}
 		else {
 			armSwinging = false;
+
+			return Vector3.zero;
 		}
 	}
 
@@ -915,7 +933,7 @@ public class ArmSwinger : MonoBehaviour {
 				saveRewindPosition();
 			}
 
-			if (!outOfBounds && currentPreventionReason == PreventionReason.NONE && !_playAreaHeightAdjustmentPaused) {
+			if (!outOfBounds && !wallClipThisFrame && currentPreventionReason == PreventionReason.NONE && !_playAreaHeightAdjustmentPaused) {
 				if (((raycastOnlyHeightAdjustWhileArmSwinging && armSwinging) || (!raycastOnlyHeightAdjustWhileArmSwinging)) && !playAreaHeightAdjustmentPaused) {
 					// Move the camera to adjust to the ground
 					cameraRigGameObject.transform.position = new Vector3(
@@ -1161,9 +1179,9 @@ public class ArmSwinger : MonoBehaviour {
 
 		previousAngleCheckHeadsetPosition = headsetGameObject.transform.position;
 
-		if (preventionMode == PreventionMode.PushBack) {
+		//if (preventionMode == PreventionMode.PushBack) {
 			seedRaycastHitHistory();
-		}
+		//}
 		
 		//resetOOB();
 		if (preventionMode == PreventionMode.Rewind) {

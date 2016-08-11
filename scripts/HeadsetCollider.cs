@@ -10,8 +10,6 @@ public class HeadsetCollider : MonoBehaviour {
 
 	//// Public variables ////
 	public float headsetSphereColliderRadius;
-
-	[HideInInspector]
 	public bool inGeometry = false;
 
 	//// Public objects ////
@@ -81,7 +79,14 @@ public class HeadsetCollider : MonoBehaviour {
             return;
         }
         
-        if (armSwinger.preventWallClip == false || armSwinger.wallClipPreventionPaused || armSwinger.preventionsPaused || inGeometry == true) {
+        if (armSwinger.preventWallClip == false || armSwinger.wallClipPreventionPaused || armSwinger.preventionsPaused) {
+			return;
+		}
+
+		// If we're already in geometry, unconditionally push back
+		if (inGeometry) {
+			armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
+			armSwinger.wallClipThisFrame = true;
 			return;
 		}
 
@@ -93,6 +98,7 @@ public class HeadsetCollider : MonoBehaviour {
 				if (angleOfCollisionPoint >= minAngleToRewindDueToWallClip) {
 					inGeometry = true;
 					armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
+					armSwinger.wallClipThisFrame = true;
 				}
 			}
 		}
@@ -101,10 +107,7 @@ public class HeadsetCollider : MonoBehaviour {
 	public void OnCollisionExit(Collision collision) {
 		inGeometry = false;
 	}
-
-
-
-
+	
 	/////////////
 	// COMPUTE //
 	/////////////
