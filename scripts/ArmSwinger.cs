@@ -13,9 +13,11 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("For your reference only, doesn't affect script operation in any way.")]
 	public string GithubProjectAndDocs = "https://github.com/ElectricNightOwl/ArmSwinger";
 
-	// Scale Settings
-	[Tooltip("Scale World Units To Camera Rig Scale\n\nBy default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.\n\n(Default: false)")]
-	public bool scaleWorldUnitsToCameraRigScale = false;
+	// General Settings
+	[Tooltip("General - Scale World Units To Camera Rig Scale\n\nBy default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.\n\n(Default: false)")]
+	public bool generalScaleWorldUnitsToCameraRigScale = false;
+	[Tooltip("General - Auto Adjust Fixed Timestep\n\nIn order for ArmSwinger to handle movement and wall collisions correctly, Time.fixedDeltaTime must be 0.0111 (90 per second) or less.  If this feature is enabled, the setting will be adjusted automatically if it is higher than 0.0111.  If disabled, an error will be generated but the value will not be changed.\n\n(Default: true)")]
+	public bool generalAutoAdjustFixedTimestep = true;
 
 	// Arm Swing Settings
 	[Tooltip("Arm Swing - Navigation\n\nEnables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode. \n\n(Default: true)")]
@@ -34,7 +36,6 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("Arm Swing - Both Controllers Coefficient\nOnly if Arm Swing Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.\n\nUsed to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.\n\n(Default: 1.0)")]
 	[Range(0f, 10f)]
 	[SerializeField]
-
 	private float _armSwingBothControllersCoefficient = 1.0f;
 	[Tooltip("Arm Swing - Single Controller Coefficient\nOnly if Arm Swing Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.\n\nUsed to boost or nerf the player's speed when using a single controller for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.\n\n(Default:.7)")]
 	[Range(0f, 10f)]
@@ -90,11 +91,6 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("Prevent Wall Clip - Min Angle To Trigger\nOnly if Prevent Wall Clip is enabled\n\nSets the minimum angle a \"wall\" should be in order to trigger Prevent Wall Clip if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.\n\n(Default: 20)")]
 	[SerializeField]
 	private float _preventWallClipMinAngleToTrigger = 20f;
-	[Range(0f, 1f)]
-	[Tooltip("Prevent Wall Clip - Speed Penalty Coefficient\nOnly if Prevent Wall Clip is enabled\n\nWhen players arm swing directly into the wall, their speed will be multiplied by this amount for preventWallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clip is active, and prevents the player from seeing through geometry.  Setting this to 1.0 disables the feature entirely.\n\n(Default: .1)")]
-	public float preventWallClipSpeedPenaltyCoefficient = .1f;
-	[Tooltip("Prevent Wall Clip - Speed Penalty Time\nOnly if Prevent Wall Clip is enabled\n\nSets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.  Each contact with the wall will reset the timer to this value.\n\n(Default: .15)")]
-	public float preventWallClipSpeedPenaltyTime = .15f;
 
 	// Prevent Climbing Settings
 	[Tooltip("Prevent Climbing\n\nPrevents the player from climbing walls and steep slopes.  \n\n(Default: true)")]
@@ -136,8 +132,8 @@ public class ArmSwinger : MonoBehaviour {
 	public bool pushBackOverride = true;
 	[Tooltip("Push Back Override - Refill Per Sec\nOnly if Push Back Override is enabled\n\nThe amount of tokens that are added to the bucket every second.  The correct proportion of tokens are added each frame to add up to this number per second.\n\n(Default: 30)")]
 	public float pushBackOverrideRefillPerSec = 30;
-	[Tooltip("Push Back Override - Max Tokens\nOnly if Push Back Override is enabled\n\nThe maximum number of tokens in the bucket.  Additional tokens 'spill out' and are lost.\n\n(Default: 60")]
-	public float pushBackOverrideMaxTokens = 60;
+	[Tooltip("Push Back Override - Max Tokens\nOnly if Push Back Override is enabled\n\nThe maximum number of tokens in the bucket.  Additional tokens 'spill out' and are lost.\n\n(Default: 90")]
+	public float pushBackOverrideMaxTokens = 90;
 
 	// Rewind Settings
 	[SerializeField]
@@ -165,7 +161,7 @@ public class ArmSwinger : MonoBehaviour {
 		OneGripSameControllerExclusive
 	};
 
-	public enum PreventionReason { CLIMBING, FALLING, INSTANT_CLIMBING, INSTANT_FALLING, OHAWAS, HEADSET, WALLWALK, MANUAL, NONE };
+	public enum PreventionReason { CLIMBING, FALLING, INSTANT_CLIMBING, INSTANT_FALLING, OHAWAS, HEADSET, WALLWALK, MANUAL, NO_GROUND, NONE };
 	public enum PreventionMode { Rewind, PushBack };
 	private enum PreventionCheckType { CLIMBFALL, WALLWALK };
 
@@ -199,6 +195,7 @@ public class ArmSwinger : MonoBehaviour {
 	private Vector3 lastCameraRigPositionSaved = new Vector3(0, 0, 0);
 	private Vector3 previousAngleCheckHeadsetPosition;
 
+	private int previousPositionSize = 5;
 	private LinkedList<Vector3> previousCameraRigPositions = new LinkedList<Vector3>();
 	private LinkedList<Vector3> previousHeadsetLocalPositions = new LinkedList<Vector3>();
 
@@ -253,10 +250,8 @@ public class ArmSwinger : MonoBehaviour {
 	// Wall Clip tracking
 	[HideInInspector]
 	public bool wallClipThisFrame = false;
-
-	// Wall Clip speed penalty
-	private float wallClipSpeedPenaltyValue = 1.0f;
-	private float wallClipSpeedPenaltyTimeLeft = 0f;
+	[HideInInspector]
+	public bool rewindThisFrame = false;
 
 	// Push back override
 	private float pushBackOverrideValue;
@@ -306,11 +301,7 @@ public class ArmSwinger : MonoBehaviour {
 		leftControllerPreviousLocalPosition = leftControllerGameObject.transform.localPosition;
 		rightControllerPreviousLocalPosition = rightControllerGameObject.transform.localPosition;
 
-		savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, 2);
-		savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, 2);
-
-		savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, 2);
-		savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, 2);
+		seedSavedPositions();
 
 		// Seed the initial saved position
 		saveRewindPosition(true);
@@ -318,7 +309,7 @@ public class ArmSwinger : MonoBehaviour {
 		lastRaycastHitWhileArmSwinging = raycast(headsetGameObject.transform.position, Vector3.down, raycastMaxLength, raycastGroundLayerMask);
 		
 		// Pre-seed previousTimeDeltaTime
-		previousTimeDeltaTime = 0.011111111f;
+		previousTimeDeltaTime = 1f/90f;
 
 		// Refill Push Back Override completely
 		pushBackOverrideValue = pushBackOverrideMaxTokens;
@@ -331,67 +322,62 @@ public class ArmSwinger : MonoBehaviour {
 	/***** FIXED UPDATE *****/
 	void FixedUpdate() {
 
-		// Check for wall clipping
-		wallClipThisFrame = false;
-		if (preventWallClip && headsetCollider.inGeometry) {
-			triggerRewind(PreventionReason.HEADSET);
-			wallClipThisFrame = true;
-		}
-
-		// If we're wall clipping, we don't want the player to be able to arm swing far enough into the wall to see through it
-		// Temporarily nerf their movement speed to fix, then restore when no longer wall clipping.
-		if (wallClipThisFrame) {
-			wallClipSpeedPenaltyTimeLeft = preventWallClipSpeedPenaltyTime;
-			wallClipSpeedPenaltyValue = preventWallClipSpeedPenaltyCoefficient;
-		}
-		else if (Mathf.Clamp(wallClipSpeedPenaltyTimeLeft, 0, preventWallClipSpeedPenaltyTime) > 0) {
-			wallClipSpeedPenaltyTimeLeft -= Time.fixedDeltaTime;
-		}
-		else {
-			wallClipSpeedPenaltyValue = 1.0f;
-		}
-
-		// Only copy safe spots for push backs
-		if (!outOfBounds && !wallClipThisFrame) {
-			if ((previousCameraRigPositions.Last.Value != cameraRigGameObject.transform.position) ||
-				(previousHeadsetLocalPositions.Last.Value != headsetGameObject.transform.localPosition)) {
-				savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, 2);
-				savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, 2);
-			}
-		}
-	}
-
-	/***** UPDATE *****/
-	void Update() {
-		// Store controller button states
-		getControllerButtons();
-
 		// Set scale as necessary (defaults to 1.0)
 		// Doing this in Update() allows the Camera Rig to be scaled during runtime but keep the same ArmSwinger feel
-		if (scaleWorldUnitsToCameraRigScale) {
+		if (generalScaleWorldUnitsToCameraRigScale) {
 			cameraRigScaleModifier = this.transform.localScale.x;
 		}
-
-		// Save the current controller positions for our use
-		leftControllerLocalPosition = leftControllerGameObject.transform.localPosition;
-		rightControllerLocalPosition = rightControllerGameObject.transform.localPosition;
 
 		// Push Back Override
 		if (pushBackOverride && !rewindInProgress) {
 			incrementPushBackOverride();
 		}
 
-		// Adjust the camera rig height, and prevent climbing/falling as configured
-		adjustCameraRig();
+		// Store controller button states
+		getControllerButtons();
 
-		// Variable motion based on controller movement
-		if (!outOfBounds && armSwingNavigation && !_armSwingingPaused) {
-			variableArmSwingMotion();
+		// reset this frame counters
+		rewindThisFrame = false;
+		wallClipThisFrame = false;
+
+		// Check for wall clipping
+		if (preventWallClip && headsetCollider.inGeometry) {
+			triggerRewind(PreventionReason.HEADSET);
 		}
 
-		// Copy the current positions to the previous slot for next time
-		leftControllerPreviousLocalPosition = leftControllerLocalPosition;
-		rightControllerPreviousLocalPosition = rightControllerLocalPosition;
+		// Save the current controller positions for our use
+		leftControllerLocalPosition = leftControllerGameObject.transform.localPosition;
+		rightControllerLocalPosition = rightControllerGameObject.transform.localPosition;
+
+		// Variable motion based on controller movement
+		if (armSwingNavigation &&
+			!outOfBounds &&
+			!wallClipThisFrame &&
+			!rewindThisFrame &&
+			!armSwingingPaused &&
+			!rewindInProgress) {
+			transform.position += variableArmSwingMotion();
+		}
+
+		// Save the current controller positions for next frame
+		leftControllerPreviousLocalPosition = leftControllerGameObject.transform.localPosition;
+		rightControllerPreviousLocalPosition = rightControllerGameObject.transform.localPosition;
+
+		// Only copy safe spots for push backs
+		if (!outOfBounds && !wallClipThisFrame && !rewindThisFrame) {
+			if ((previousCameraRigPositions.Last.Value != cameraRigGameObject.transform.position) ||
+				(previousHeadsetLocalPositions.Last.Value != headsetGameObject.transform.localPosition)) {
+				//Debug.Log(Time.frameCount + "|ArmSwinger.FixedUpdate():: Saving " + cameraRigGameObject.transform.position + headsetGameObject.transform.localPosition);
+
+				savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, previousPositionSize);
+				savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, previousPositionSize);
+			}
+		}
+
+		// Adjust the camera rig height, and prevent climbing/falling as configured
+		if (!wallClipThisFrame && !rewindThisFrame && !outOfBounds) {
+			adjustCameraRig();
+		}
 
 		// Save this Time.deltaTime for next frame (inertia simulation)
 		previousTimeDeltaTime = Time.deltaTime;
@@ -417,11 +403,21 @@ public class ArmSwinger : MonoBehaviour {
         if (((raycastGroundLayerMask.value & 1 << rightControllerGameObject.layer) != 0) && rightControllerGameObject.GetComponent<Collider>()) {
             Debug.LogWarning("ArmSwinger.verifySettings():: raycastGroundLayerMask includes the layer for your right controller, which also has a a collider on it.  The raycast from the center of the headset downwards will hit your controller if it gets in the way, causing false positive rewinds/pushbacks.  You should change raycastGroundLayerMask to not include the controller's layer, or change the controller to a different layer.");
         }
+
+		// Check fixed time setting
+		if (Time.fixedDeltaTime > 1f/90f) {
+			if (generalAutoAdjustFixedTimestep) {
+				Debug.LogWarning("ArmSwinger.verifySettings():: Fixed Timestep is set to " + Time.fixedDeltaTime + ".  Since you have generalAutoAdjustFixedTimestep set to true, ArmSwinger will auto adjust this value to " + 1f / 90f + " (90 steps per second) for you.");
+				Time.fixedDeltaTime = 1f / 90f;
+			} else {
+				Debug.LogError("ArmSwinger.verifySettings():: Fixed Timestep is set to " + Time.fixedDeltaTime + ".  This will cause stuttering movement when arm swinging.  Consider changing your Fixed Timestep to " + 1f / 90f + " (90 steps per second) by going to Edit -> Project Settings -> Time -> Fixed Timestep.");
+			}
+		}
     }
 
-        /***** CORE FUNCTIONS *****/
-        // Variable Arm Swing locomotion
-    void variableArmSwingMotion() {
+    /***** CORE FUNCTIONS *****/
+    // Variable Arm Swing locomotion
+    Vector3 variableArmSwingMotion() {
 
 		// Initialize movement variables
 		float movementAmount = 0f;
@@ -466,25 +462,24 @@ public class ArmSwinger : MonoBehaviour {
 					ohawasInstantHeightChangeCheck(startSwingingRaycastHit.point.y, lastRaycastHitWhileArmSwinging.point.y);
 					// If we need to rewind, don't arm swing this frame
 					if (currentPreventionReason != PreventionReason.NONE) {
-						return;
+						return Vector3.zero;
 					}
 				}
 			}
 
 			armSwinging = true;
 			
-			// A final speed tweak only for use by script internals
-			movementAmount *= wallClipSpeedPenaltyValue;
-
-			// Move forward in the X and Z axis only (no flying!)
-			transform.position += getForwardXZ(movementAmount, movementRotation);
-
 			latestArtificialMovement = movementAmount;
 			latestArtificialRotation = movementRotation;
+
+			// Move forward in the X and Z axis only (no flying!)
+			return getForwardXZ(movementAmount, movementRotation);
 
 		}
 		else {
 			armSwinging = false;
+
+			return Vector3.zero;
 		}
 	}
 
@@ -891,20 +886,24 @@ public class ArmSwinger : MonoBehaviour {
 				}
 			}
 
-			if (checkAnglesThisFrame && !outOfBounds) {
+			if (checkAnglesThisFrame && !outOfBounds && !wallClipThisFrame && !rewindThisFrame) {
 				// Save the current non-out-of-bounds headset and play area position
 				saveRewindPosition();
 			}
 
-			if (!outOfBounds && currentPreventionReason == PreventionReason.NONE && !_playAreaHeightAdjustmentPaused) {
+			if (!outOfBounds && !wallClipThisFrame && currentPreventionReason == PreventionReason.NONE && !_playAreaHeightAdjustmentPaused) {
 				if (((raycastOnlyHeightAdjustWhileArmSwinging && armSwinging) || (!raycastOnlyHeightAdjustWhileArmSwinging)) && !playAreaHeightAdjustmentPaused) {
-					// Move the camera to adjust to the ground
-					cameraRigGameObject.transform.position = new Vector3(
-						cameraRigGameObject.transform.position.x,
-						averageRaycastHitY(headsetCenterRaycastHitHistoryHeight),
-						cameraRigGameObject.transform.position.z);
+					if (headsetCenterRaycastHitHistoryHeight.Count > 0) {
+						// Move the camera to adjust to the ground
+						cameraRigGameObject.transform.position = new Vector3(
+							cameraRigGameObject.transform.position.x,
+							averageRaycastHitY(headsetCenterRaycastHitHistoryHeight),
+							cameraRigGameObject.transform.position.z);
+					}
 				}
 			}
+		} else {
+			triggerRewind(PreventionReason.NO_GROUND);
 		}
 	}
 
@@ -1086,7 +1085,11 @@ public class ArmSwinger : MonoBehaviour {
 
         currentPreventionReason = reason;
 
-        //Debug.Log("ArmSwinger.triggerRewind():: Rewind triggered due to " + reason + " (outOfBounds=" + outOfBounds + ")");
+		if (reason == PreventionReason.HEADSET) {
+			wallClipThisFrame = true;
+		}
+
+        //Debug.Log(Time.frameCount + "|ArmSwinger.triggerRewind():: Rewind triggered due to " + reason);
 
 		if (!outOfBounds) {
 			// Special handling for raycastOnlyHeightAdjustWhileArmSwinging (OHAWAS) events where the player walks into geometry and then starts arm swinging.
@@ -1098,10 +1101,6 @@ public class ArmSwinger : MonoBehaviour {
 			// Everything else
 			else {
 				outOfBounds = true;
-				resetReasonHistory();
-				resetRaycastHitHistory();
-				latestArtificialMovement = 0f;
-				latestArtificialRotation = Quaternion.identity;
 
                 // If the prevention mode is REWIND and a rewind isn't already pending - fade out, rewind, fade back in
                 if (currentPreventionMode == PreventionMode.Rewind && !rewindInProgress) {
@@ -1126,8 +1125,16 @@ public class ArmSwinger : MonoBehaviour {
 		rewindPosition(PreventionMode.Rewind);
 	}
 
-
 	void rewindPosition(PreventionMode preventionMode) {
+
+		// Let other features know that a rewind occured this frame
+		rewindThisFrame = true;
+
+		// Reset all caches
+		resetReasonHistory();
+		resetRaycastHitHistory();
+		latestArtificialMovement = 0f;
+		latestArtificialRotation = Quaternion.identity;
 
 		// The positions we'll be rewinding to
 		Vector3 cameraRigPreviousPositionToRewindTo = new Vector3();
@@ -1136,16 +1143,18 @@ public class ArmSwinger : MonoBehaviour {
 		// Determine what previous positions we need to rewind to
 		determinePreviousPositionToRewindTo(ref cameraRigPreviousPositionToRewindTo, ref headsetPreviousPositionToRewindTo, preventionMode);
 
+		//Debug.Log(Time.frameCount + "|ArmSwinger.rewindPosition():: Mode " + preventionMode + " to " + cameraRigPreviousPositionToRewindTo + headsetPreviousPositionToRewindTo);
+
 		Vector3 newCameraRigPosition = calculateCameraRigRewindPosition(cameraRigPreviousPositionToRewindTo, headsetPreviousPositionToRewindTo, cameraRigGameObject.transform.position, headsetGameObject.transform.localPosition, preventionMode);
 
 		cameraRigGameObject.transform.position = newCameraRigPosition;
 
 		previousAngleCheckHeadsetPosition = headsetGameObject.transform.position;
 
-		if (preventionMode == PreventionMode.PushBack) {
-			seedRaycastHitHistory();
-		}
-		
+		// Seed caches with the new, safe position
+		seedRaycastHitHistory();
+		seedSavedPositions();
+
 		//resetOOB();
 		if (preventionMode == PreventionMode.Rewind) {
 			Invoke("resetOOB", rewindFadeInSec);
@@ -1165,17 +1174,28 @@ public class ArmSwinger : MonoBehaviour {
 		// PUSH BACK
 		if (preventionMode == PreventionMode.PushBack) {
 
-			cameraRigPreviousPositionToRewindTo = previousCameraRigPositions.First.Value;
-			headsetPreviousPositionToRewindTo = previousHeadsetLocalPositions.First.Value;
+			// If the player is ArmSwinging, we need to push back farther in order to ensure their headset doesn't get stuck in the wall
+			// So, we grab the oldest position in the cache
+			if (armSwinging) {
+				cameraRigPreviousPositionToRewindTo = previousCameraRigPositions.First.Value;
+				headsetPreviousPositionToRewindTo = previousHeadsetLocalPositions.First.Value;
 
-			// The last (most recent) position stored is what got us in this mess to begin with
-			previousCameraRigPositions.RemoveLast();
-			previousHeadsetLocalPositions.RemoveLast();
+				// Replace all positions with the safe ones we just found
+				seedSavedPositions(cameraRigPreviousPositionToRewindTo, headsetPreviousPositionToRewindTo);
+			}
+			// If the player is not ArmSwinging, they are physically moving and the second-most-recent position works fine.
+			else {
 
-			// Replace them with known-good positions
-			savePosition(previousCameraRigPositions, cameraRigPreviousPositionToRewindTo, 2);
-			savePosition(previousHeadsetLocalPositions, headsetPreviousPositionToRewindTo, 2);
+				// The last (most recent) position stored is what got us in this mess to begin with
+				previousCameraRigPositions.RemoveLast();
+				previousHeadsetLocalPositions.RemoveLast();
 
+				// The "last" position is now the one before this frame, so we know it's safe
+				cameraRigPreviousPositionToRewindTo = previousCameraRigPositions.Last.Value;
+				headsetPreviousPositionToRewindTo = previousHeadsetLocalPositions.Last.Value;
+
+				// Note that we don't drain / re-seed the cache.  This will allow us to roll back even farther if necessary.
+			}
 		}
 		// REWIND		
 		// If the headset/rig caches have at least rewindNumSavedPositionsToRewind worth of positions in the cache
@@ -1206,6 +1226,7 @@ public class ArmSwinger : MonoBehaviour {
 
 		// We only care about the X/Z positioning of the headset
 		Vector3 headsetPositionDifference = ArmSwinger.vector3XZOnly(headsetPreviousLocalPosition) - ArmSwinger.vector3XZOnly(headsetLocalPosition);
+
 		Vector3 returnPosition = cameraRigPreviousPosition + headsetPositionDifference;
 
 		return returnPosition;
@@ -1217,6 +1238,9 @@ public class ArmSwinger : MonoBehaviour {
 			currentPreventionReason == PreventionReason.HEADSET && preventWallClipMode == PreventionMode.PushBack) {
 
 			// If Push Back Override is enabled and active, do a rewind instead of a push back
+			// Also rewind if player is ArmSwinging
+			//if ((pushBackOverride && pushBackOverrideActive && !rewindInProgress) ||
+			//	armSwinging) {
 			if (pushBackOverride && pushBackOverrideActive && !rewindInProgress) {
 				return PreventionMode.Rewind;
 			}
@@ -1617,6 +1641,11 @@ public class ArmSwinger : MonoBehaviour {
 		headsetCenterRaycastHitHistoryPrevention.Clear();
 	}
 
+	void resetSavedPositions() {
+		previousCameraRigPositions.Clear();
+		previousCameraRigPositions.Clear();
+	}
+
 	void seedRaycastHitHistory() {
 		bool didRaycastHit = false;
 		RaycastHit raycastHit = raycast(headsetGameObject.transform.position, Vector3.down, raycastMaxLength, raycastGroundLayerMask, out didRaycastHit);
@@ -1624,8 +1653,22 @@ public class ArmSwinger : MonoBehaviour {
 		if (didRaycastHit) {
 			saveRaycastHit(headsetCenterRaycastHitHistoryHeight, raycastHit, 1);
 		}
-
 	}
+
+	void seedSavedPositions() {
+		for (int count = 0; count < previousPositionSize; count++) {
+			savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, previousPositionSize);
+			savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, previousPositionSize);
+		}
+	}
+
+	void seedSavedPositions(Vector3 cameraRigPosition, Vector3 headsetLocalPosition) {
+		for (int count = 0; count < previousPositionSize; count++) {
+			savePosition(previousCameraRigPositions, cameraRigPosition, previousPositionSize);
+			savePosition(previousHeadsetLocalPositions, headsetLocalPosition, previousPositionSize);
+		}
+	}
+
 
 	void resetRewindPositions() {
 		cameraRigPreviousPositions.Clear();
@@ -1641,10 +1684,13 @@ public class ArmSwinger : MonoBehaviour {
 		//resetReasonHistory();
 		resetRaycastHitHistory();
 		resetRewindPositions();
+		resetSavedPositions();
 
 		cameraRigGameObject.transform.position = newPosition;
 
 		seedRaycastHitHistory();
+		seedSavedPositions();
+
 		outOfBounds = false;
 		currentPreventionReason = PreventionReason.NONE;
 

@@ -10,7 +10,7 @@
 - [Overview of Included Files](#overview-of-included-files)
 - [Using ArmSwinger](#using-armswinger)
 - [**ArmSwinger.cs Settings**](#armswingercs-settings)
-  * [Scale Settings](#scale-settings)
+  * [General Settings](#general-settings)
   * [Arm Swing Settings](#arm-swing-settings)
   * [Controller Smoothing Settings](#controller-smoothing)
   * [Inertia Settings](#inertia-settings)
@@ -30,7 +30,14 @@
 ## What is this?
 ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with minimal disorientation.
 
+You can download the test level to see what ArmSwinger is capable of.
+* [ArmSwinger VR Locomotion v1.1 Test Build](https://drive.google.com/open?id=0B7TmmTf6PGr1QlE1aFY5dlJVNnc)
+
 There is a [release trailer](https://www.youtube.com/watch?v=JjZNLGN_k-A) for ArmSwinger that demonstrates many of the major features.
+
+If you just want the basics, check out the [ArmSwinger - Quick Start](https://www.youtube.com/watch?v=hmX3ymwzzbI&list=PLJKrZBvXUBwbKkgbInXTece7lk3hpoarv&index=4) video.  You can view the [ArmSwinger Video Tutorial Series](https://www.youtube.com/playlist?list=PLJKrZBvXUBwawR6mZ0088Sg8rMrdvgYqT) to learn how to customize ArmSwinger's many settings to your game or application.
+
+
 
 ## I hate reading, can't I just watch a video?
 Sure can.  [The ArmSwinger Tutorial series](https://www.youtube.com/playlist?list=PLJKrZBvXUBwawR6mZ0088Sg8rMrdvgYqT) on YouTube covers nearly all the settings shown here.  The videos also give additional background and demonstrations of the various features.
@@ -95,8 +102,8 @@ All settings are configured to sane defaults.  At a minimum, you should seriousl
 - [Raycast - Ground Layer Mask](#raycast-ground-layer-mask)
 - [Prevent Wall Clip - Layer Mask](#prevent-wall-clip-layer-mask)
 
-### Scale Settings
-#### Scale World Units To Camera Rig Scale
+### General Settings
+#### General - Scale World Units To Camera Rig Scale
 By default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled at to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.
 
 Settings that are affected by this are:
@@ -106,6 +113,9 @@ Settings that are affected by this are:
 - [Instant Height - Max Change](#instant-height-max-change)
 
 If this feature is enabled, all of the above settings will be treated as meters or meters per second scaled to the X scale of the Camera Rig.
+
+#### General - Auto Adjust Fixed Timestep
+In order for ArmSwinger to handle movement and wall collisions correctly, Time.fixedDeltaTime must be 0.0111 (90 per second) or less.  If this feature is enabled, the setting will be adjusted automatically if it is higher than 0.0111.  If disabled, an error will be generated but the value will not be changed.
 
 ### Arm Swing Settings
 #### Arm Swing - Navigation
@@ -134,7 +144,7 @@ Only if Arm Swing Navigation is enabled.  The number of CameraRig local units pe
 #### Arm Swing - Max Speed
 Only if Arm Swing Navigation is enabled.  The fastest base speed (in world units) a player can travel when moving controllers at "Arm Swing - Controller Speed For Max Speed".  The actual max speed of the player will depend on the both/single controller coefficients you configure.
 
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+Affected by [General - Scale World Units To Camera Rig Scale](#general-scale-world-units-to-camera-rig-scale).
 
 #### Arm Swing - Both Controllers Coefficient
 Only if Arm Swinger Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.  Used to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.
@@ -192,7 +202,7 @@ The length of the headset raycasts (in CameraRig local units) used for play heig
 
 If you use too low of a value here, you may have rewind misses (should have rewound, and didn't).  If you use too high a number, there may be very minor performance implications.
 
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+Affected by [General - Scale World Units To Camera Rig Scale](#general-scale-world-units-to-camera-rig-scale).
 
 #### Raycast - Average Height Cache Size
 Number of Raycasts to average together when determining where to place the play area.  These raycasts are done once per frame.  Lower numbers will make the play area moving feel more responsive.  Higher numbers will smooth out terrain bumps but may feel laggy.
@@ -264,7 +274,7 @@ Only if Prevent Climbing / Falling or Only Height Adjust While Arm Swinging are 
 
 If at any time the player ascends/descends more than this value over a single frame, a rewind is triggered unconditionally (no sampling multiple times).
 
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+Affected by [General - Scale World Units To Camera Rig Scale](#general-scale-world-units-to-camera-rig-scale).
 
 #### Instant Height - Climb Prevention Mode
 Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than instantHeightMaxChange.
@@ -287,7 +297,7 @@ Only if Prevent Climbing / Falling is enabled.  The number of angle checks in a 
 
 ArmSwinger will keep track of the last numClimbFallChecksOOBBeforeRewind checks.  All the checks must agree in order to trigger a rewind.  This weeds out tiny bumps in the terrain that are technically "too tall to climb", but are reasonably cleared by the player.
 
-If a player tries to climb a slope that is too steep, they will be able to travel (rewindMinDistanceChangeToSavePosition * checksNumClimbFallChecksOOBBeforeRewind) world units (scaled by the Camera Rig's X scale if scaleWorldUnitsToCameraRigScale is enabled) before a rewind occurs.
+If a player tries to climb a slope that is too steep, they will be able to travel (rewindMinDistanceChangeToSavePosition * checksNumClimbFallChecksOOBBeforeRewind) world units (scaled by the Camera Rig's X scale if generalScaleWorldUnitsToCameraRigScale is enabled) before a rewind occurs.
 
 #### Checks - Num Wall Walk Checks OOB Before Rewind
 Only if Prevent Wall Walking is enabled.  The number of checks in a row the player must be considered wall walking to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.
@@ -322,7 +332,7 @@ The measured distance traveled is a sum of the X and Z coordinate change of the 
 
 Note that climb/fall/wall walk checks are only done every rewindMinDistanceChangeToSavePosition world units (so angle checks and rewind saves are sync'd).  This method ensures that players will get (mostly) identical results when crossing a given plane regardless of their speed and FPS. Also improves performance by not firing the side ray and doing all the math every frame, or when the player is standing still.
 
-Affected by [Scale World Units To Camera Rig Scale](#scale-world-units-to-camera-rig-scale).
+Affected by [General - Scale World Units To Camera Rig Scale](#general-scale-world-units-to-camera-rig-scale).
 
 #### Rewind - Dont Save Unsafe Climb Fall Positions
 Only if both Prevent Climbing and Prevent Falling are enabled.  If true, positions that can be climbed but not fallen down (or vice versa) won't be saved as rewind positions.  If false, the position will be saved anyways and the player might get stuck.

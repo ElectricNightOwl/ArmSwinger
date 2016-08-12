@@ -10,8 +10,6 @@ public class HeadsetCollider : MonoBehaviour {
 
 	//// Public variables ////
 	public float headsetSphereColliderRadius;
-
-	[HideInInspector]
 	public bool inGeometry = false;
 
 	//// Public objects ////
@@ -81,18 +79,30 @@ public class HeadsetCollider : MonoBehaviour {
             return;
         }
         
-        if (armSwinger.preventWallClip == false || armSwinger.wallClipPreventionPaused || armSwinger.preventionsPaused || inGeometry == true) {
+        if (armSwinger.preventWallClip == false || armSwinger.wallClipPreventionPaused || armSwinger.preventionsPaused) {
+			return;
+		}
+
+		// If we're already in geometry, unconditionally push back
+		if (inGeometry) {
+			armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
+			armSwinger.wallClipThisFrame = true;
 			return;
 		}
 
 		if (armSwinger.currentPreventionReason == ArmSwinger.PreventionReason.NONE || armSwinger.currentPreventionReason == ArmSwinger.PreventionReason.HEADSET) {
 			if ((groundRayLayerMask.value & 1 << collision.gameObject.layer) != 0) {
-				Vector3 normalOfCollisionPoint = collision.contacts[0].normal;
-				float angleOfCollisionPoint = Vector3.Angle(Vector3.up, normalOfCollisionPoint);
 
-				if (angleOfCollisionPoint >= minAngleToRewindDueToWallClip) {
-					inGeometry = true;
-					armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
+				foreach (ContactPoint contactPoint in collision.contacts) {
+					Vector3 normalOfCollisionPoint = contactPoint.normal;
+					float angleOfCollisionPoint = Vector3.Angle(Vector3.up, normalOfCollisionPoint);
+
+					if (angleOfCollisionPoint >= minAngleToRewindDueToWallClip) {
+						inGeometry = true;
+						armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
+						armSwinger.wallClipThisFrame = true;
+						return;
+					}
 				}
 			}
 		}
@@ -101,10 +111,7 @@ public class HeadsetCollider : MonoBehaviour {
 	public void OnCollisionExit(Collision collision) {
 		inGeometry = false;
 	}
-
-
-
-
+	
 	/////////////
 	// COMPUTE //
 	/////////////
