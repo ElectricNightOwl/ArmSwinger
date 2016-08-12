@@ -92,13 +92,17 @@ public class HeadsetCollider : MonoBehaviour {
 
 		if (armSwinger.currentPreventionReason == ArmSwinger.PreventionReason.NONE || armSwinger.currentPreventionReason == ArmSwinger.PreventionReason.HEADSET) {
 			if ((groundRayLayerMask.value & 1 << collision.gameObject.layer) != 0) {
-				Vector3 normalOfCollisionPoint = collision.contacts[0].normal;
-				float angleOfCollisionPoint = Vector3.Angle(Vector3.up, normalOfCollisionPoint);
 
-				if (angleOfCollisionPoint >= minAngleToRewindDueToWallClip) {
-					inGeometry = true;
-					armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
-					armSwinger.wallClipThisFrame = true;
+				foreach (ContactPoint contactPoint in collision.contacts) {
+					Vector3 normalOfCollisionPoint = contactPoint.normal;
+					float angleOfCollisionPoint = Vector3.Angle(Vector3.up, normalOfCollisionPoint);
+
+					if (angleOfCollisionPoint >= minAngleToRewindDueToWallClip) {
+						inGeometry = true;
+						armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
+						armSwinger.wallClipThisFrame = true;
+						return;
+					}
 				}
 			}
 		}
