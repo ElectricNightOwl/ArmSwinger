@@ -25,6 +25,7 @@
   * [Rewind Settings](#rewind-settings)
 - [Public Functions](#public-functions)
 - [How does it work?](#how-does-it-work)
+- [Special Thanks](#special-thanks)
 - [**Contact**](#contact)
 
 ## What is this?
@@ -405,6 +406,11 @@ Prevent Wall Walking uses a second raycast shot just to the left (relative to th
 
 ### Rewind
 If you use one of the Out of Bounds Prevention features and the player goes Out of Bounds, ArmSwinger will rewind the player to a previous safe position.  Safe positions are cached as the player moves across "safe" ground.  By default, only ground that the player can fall down, climb up, and walk across is considered "safe" and is cached.  This prevents situations where you fall down a slope you can't then climb back up if you get stuck halfway down.
+
+## Special Thanks
+Special thanks to the following people for their exceptional contributions to ArmSwinger.
+
+- [/u/simburger](https://www.reddit.com/user/simburger) - for running into walls continuously for multiple ArmSwinger versions
 
 ## Contact
 Questions?  Comments?  Snide remarks?  Valentines cards?  Please send all inquiries to [Electric Night Owl](mailto:armswinger@electricnightowl.com) or contact us via [Twitter (@ElecNightOwl)](https://twitter.com/ElecNightOwl).  Hoot!
