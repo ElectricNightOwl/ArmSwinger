@@ -36,7 +36,6 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("Arm Swing - Both Controllers Coefficient\nOnly if Arm Swing Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.\n\nUsed to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.\n\n(Default: 1.0)")]
 	[Range(0f, 10f)]
 	[SerializeField]
-
 	private float _armSwingBothControllersCoefficient = 1.0f;
 	[Tooltip("Arm Swing - Single Controller Coefficient\nOnly if Arm Swing Navigation is enabled and Swing Activation Mode allows a single controller to be used for arm swinging.\n\nUsed to boost or nerf the player's speed when using a single controller for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.\n\n(Default:.7)")]
 	[Range(0f, 10f)]
@@ -92,11 +91,6 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("Prevent Wall Clip - Min Angle To Trigger\nOnly if Prevent Wall Clip is enabled\n\nSets the minimum angle a \"wall\" should be in order to trigger Prevent Wall Clip if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.\n\n(Default: 20)")]
 	[SerializeField]
 	private float _preventWallClipMinAngleToTrigger = 20f;
-	[Range(0f, 1f)]
-	[Tooltip("Prevent Wall Clip - Speed Penalty Coefficient\nOnly if Prevent Wall Clip is enabled\n\nWhen players arm swing directly into the wall, their speed will be multiplied by this amount for preventWallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clip is active, and prevents the player from seeing through geometry.  Setting this to 1.0 disables the feature entirely.\n\n(Default: .1)")]
-	public float preventWallClipSpeedPenaltyCoefficient = .1f;
-	[Tooltip("Prevent Wall Clip - Speed Penalty Time\nOnly if Prevent Wall Clip is enabled\n\nSets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.  Each contact with the wall will reset the timer to this value.\n\n(Default: .15)")]
-	public float preventWallClipSpeedPenaltyTime = .15f;
 
 	// Prevent Climbing Settings
 	[Tooltip("Prevent Climbing\n\nPrevents the player from climbing walls and steep slopes.  \n\n(Default: true)")]
@@ -138,8 +132,8 @@ public class ArmSwinger : MonoBehaviour {
 	public bool pushBackOverride = true;
 	[Tooltip("Push Back Override - Refill Per Sec\nOnly if Push Back Override is enabled\n\nThe amount of tokens that are added to the bucket every second.  The correct proportion of tokens are added each frame to add up to this number per second.\n\n(Default: 30)")]
 	public float pushBackOverrideRefillPerSec = 30;
-	[Tooltip("Push Back Override - Max Tokens\nOnly if Push Back Override is enabled\n\nThe maximum number of tokens in the bucket.  Additional tokens 'spill out' and are lost.\n\n(Default: 60")]
-	public float pushBackOverrideMaxTokens = 60;
+	[Tooltip("Push Back Override - Max Tokens\nOnly if Push Back Override is enabled\n\nThe maximum number of tokens in the bucket.  Additional tokens 'spill out' and are lost.\n\n(Default: 90")]
+	public float pushBackOverrideMaxTokens = 90;
 
 	// Rewind Settings
 	[SerializeField]
@@ -258,10 +252,6 @@ public class ArmSwinger : MonoBehaviour {
 	public bool wallClipThisFrame = false;
 	[HideInInspector]
 	public bool rewindThisFrame = false;
-
-	// Wall Clip speed penalty
-	private float wallClipSpeedPenaltyValue = 1.0f;
-	private float wallClipSpeedPenaltyTimeLeft = 0f;
 
 	// Push back override
 	private float pushBackOverrideValue;
@@ -479,9 +469,6 @@ public class ArmSwinger : MonoBehaviour {
 
 			armSwinging = true;
 			
-			// A final speed tweak only for use by script internals
-			movementAmount *= wallClipSpeedPenaltyValue;
-
 			latestArtificialMovement = movementAmount;
 			latestArtificialRotation = movementRotation;
 
