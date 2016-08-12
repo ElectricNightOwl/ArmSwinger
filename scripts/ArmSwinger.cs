@@ -903,7 +903,7 @@ public class ArmSwinger : MonoBehaviour {
 				}
 			}
 		} else {
-			//triggerRewind(PreventionReason.NO_GROUND);
+			triggerRewind(PreventionReason.NO_GROUND);
 		}
 	}
 
