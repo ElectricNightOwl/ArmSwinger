@@ -30,7 +30,14 @@
 ## What is this?
 ArmSwinger is an artificial VR locomotion library developed on Unity 5.4.  ArmSwinger allows you to use your arms to control your position in 3D space in a natural way with minimal disorientation.
 
+You can download the test level to see what ArmSwinger is capable of.
+* [ArmSwinger VR Locomotion v1.1 Test Build](https://drive.google.com/open?id=0B7TmmTf6PGr1QlE1aFY5dlJVNnc)
+
 There is a [release trailer](https://www.youtube.com/watch?v=JjZNLGN_k-A) for ArmSwinger that demonstrates many of the major features.
+
+If you just want the basics, check out the [ArmSwinger - Quick Start](https://www.youtube.com/watch?v=hmX3ymwzzbI&list=PLJKrZBvXUBwbKkgbInXTece7lk3hpoarv&index=4) video.  You can view the [ArmSwinger Video Tutorial Series](https://www.youtube.com/playlist?list=PLJKrZBvXUBwawR6mZ0088Sg8rMrdvgYqT) to learn how to customize ArmSwinger's many settings to your game or application.
+
+
 
 ## I hate reading, can't I just watch a video?
 Sure can.  [The ArmSwinger Tutorial series](https://www.youtube.com/playlist?list=PLJKrZBvXUBwawR6mZ0088Sg8rMrdvgYqT) on YouTube covers nearly all the settings shown here.  The videos also give additional background and demonstrations of the various features.
