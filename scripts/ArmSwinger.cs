@@ -14,12 +14,14 @@ public class ArmSwinger : MonoBehaviour {
 	public string GithubProjectAndDocs = "https://github.com/ElectricNightOwl/ArmSwinger";
 
 	// General Settings
+	[Header("General Settings")]
 	[Tooltip("General - Scale World Units To Camera Rig Scale\n\nBy default, several unit- and speed-based settings are in absolute world units regardless of CameraRig scale.  If this setting is true, all of those settings will be automatically scaled to match the X scale of this CameraRig.  If you use a non-default CameraRig scale, enabling this setting will allow you to specify all settings in meters-per-second in relation to the CameraRig rather than in world units.\n\n(Default: false)")]
 	public bool generalScaleWorldUnitsToCameraRigScale = false;
 	[Tooltip("General - Auto Adjust Fixed Timestep\n\nIn order for ArmSwinger to handle movement and wall collisions correctly, Time.fixedDeltaTime must be 0.0111 (90 per second) or less.  If this feature is enabled, the setting will be adjusted automatically if it is higher than 0.0111.  If disabled, an error will be generated but the value will not be changed.\n\n(Default: true)")]
 	public bool generalAutoAdjustFixedTimestep = true;
 
 	// Arm Swing Settings
+	[Header("Arm Swing Settings")]
 	[Tooltip("Arm Swing - Navigation\n\nEnables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode. \n\n(Default: true)")]
 	public bool armSwingNavigation = true;
 	[SerializeField]
@@ -43,6 +45,7 @@ public class ArmSwinger : MonoBehaviour {
 	private float _armSwingSingleControllerCoefficient = .7f;
 
 	// Controller Smoothing Settings
+	[Header("Controller Smoothing Settings")]
 	[Tooltip ("Controller Smoothing\n\nUses controller movement sampling to help eliminate jerks and unpleasant movement when controllers suddenly change position due to tracking inaccuracies.  It is highly recommended to turn this setting on if using movingInertia\n\n(Default: true)")]
 	public bool controllerSmoothing = true;
 	[Tooltip ("Controller Smoothing - Mode\nOnly if Controller Smoothing is enabled\n\nDetermines how controller smoothing calculates the smoothed movement value used by arm swinging.\n\nLowest\nUse the lowest value in the cache.  Should only be used with small cache sizes.\n\nAverage\nUse the average of all values in the cache.\n\nAverage Minus Highest\nUse the average of all values in the cache, but disregard the highest value.  When a controller jitters, the value change in that frame is almost always higher than normal values and will be discarded.\n\n(Default: Average Minus Highest)")]
@@ -51,8 +54,9 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip ("Controller Smoothing - Cache Size\nOnly if Controller Smoothing is enabled\n\nSets the number of calculated controller movements to keep in the cache.  Setting this number too low may allow a jittering controller to cause jerky movements for the player.  Setting this number too high increases lag time from controller movement to camera rig movement.\n\n(Default: 3)")]
 	public int controllerSmoothingCacheSize = 3;
 
-    // Inertia Settings
-    [SerializeField]
+	// Inertia Settings
+	[Header("Inertia Settings")]
+	[SerializeField]
     [Tooltip("Moving Inertia\n\nSimulates inertia while arm swinging.  If the controllers change position slower than the moving inertia calculation, the inertia calculation will be used to determine forward movement.\n\n(Default: true)")]
 	private bool _movingInertia = true;
 	[Tooltip("Moving Inertia - Time To Stop At Max Speed\nOnly if Moving Inertia is enabled\n\nThe time it will take to go from armSwingMaxSpeed to 0 if arm swinging is engaged and the player does not move the controllers.  Speeds lower than armSwingMaxSpeed will scale their stopping time linearly.\n\n(Default: .5)")]
@@ -64,6 +68,7 @@ public class ArmSwinger : MonoBehaviour {
 	public float stoppingInertiaTimeToStopAtMaxSpeed = .35f;
 
 	// Raycast Settings
+	[Header("Raycast Settings")]
 	[Tooltip("Raycast - Ground Layer Mask\n\nLayers that ArmSwinger will consider 'the ground' when determining Y movement of the play space and when calculating angle-based prevention methods. \n\n(Default: Everything)")]
 	public LayerMask raycastGroundLayerMask = -1;
 	[SerializeField]
@@ -77,6 +82,7 @@ public class ArmSwinger : MonoBehaviour {
 	public bool raycastOnlyHeightAdjustWhileArmSwinging = false;
 
 	// Prevent Wall Clip Settings
+	[Header("Prevent Wall Clip Settings")]
 	[Tooltip("Prevent Wall Clip\n\nPrevents players from putting their headset through walls and ground that are in the preventWallClipLayerMask list.\n\n(Default: true)")]
 	[SerializeField]
 	private bool _preventWallClip = true;
@@ -93,6 +99,7 @@ public class ArmSwinger : MonoBehaviour {
 	private float _preventWallClipMinAngleToTrigger = 20f;
 
 	// Prevent Climbing Settings
+	[Header("Prevent Climbing Settings")]
 	[Tooltip("Prevent Climbing\n\nPrevents the player from climbing walls and steep slopes.  \n\n(Default: true)")]
 	public bool preventClimbing = true;
 	[Range(0f, 90f)]
@@ -101,6 +108,7 @@ public class ArmSwinger : MonoBehaviour {
 	private float _preventClimbingMaxAnglePlayerCanClimb = 45f;
 
 	// Prevent Falling Settings
+	[Header("Prevent Falling Settings")]
 	[Tooltip("Prevent Falling\n\nPrevents the player from falling down steep slopes.\n\n(Default: true)")]
 	public bool preventFalling = true;
 	[Range(0f, 90f)]
@@ -109,10 +117,12 @@ public class ArmSwinger : MonoBehaviour {
 	private float _preventFallingMaxAnglePlayerCanFall = 60f;
 
 	// Prevent Wall Walking Settings
+	[Header("Prevent Wall Walking Settings")]
 	[Tooltip("Prevent Wall Walking\n\nPrevents the player from traversing across steep slopes.  Uses preventClimbingMaxAnglePlayerCanClimb when wall walking up, and preventClimbingMaxAnglePlayerCanClimb when wall walking down.\n\n(Default: true)")]
 	public bool preventWallWalking = true;
 
 	// Instant Height Settings
+	[Header("Instant Height Settings")]
 	[SerializeField]
 	[Tooltip("Instant Height - Max Change\nOnly if Prevent Climbing / Falling or Only Height Adjust While Arm Swinging are enabled\n\nThe maximum height in world units a player can climb or descend in a single frame without triggering a rewind.  Allows climbing of steps this size or below, and prevents jumping over walls or falling off cliffs.  Also affects raycastOnlyHeightAdjustWhileArmSwinging.\n\n(Default: .2)")]
 	private float _instantHeightMaxChange = .2f;
@@ -122,12 +132,14 @@ public class ArmSwinger : MonoBehaviour {
 	public PreventionMode instantHeightFallPreventionMode = PreventionMode.Rewind;
 
 	// Check Settings
+	[Header("Check Settings")]
 	[Tooltip("Checks - Num Climb Fall Checks OOB Before Rewind\nOnly if Prevent Climbing / Falling is enabled\n\nThe number of checks in a row the player must be falling or climbing to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 5)")]
 	public int checksNumClimbFallChecksOOBBeforeRewind = 5;
 	[Tooltip("Checks - Num Wall Walk Checks OOB Before Rewind\nOnly if Prevent Wall Walking is enabled\n\nThe number of checks in a row the player must be considered wall walking to trigger a rewind.  Checks are performed in sync with rewinds (rewindMinDistanceChangeToSavePosition).  Lower numbers will result in more false positives.  Higher numbers may allow the player to overcome the limits you set.\n\n(Default: 15)")]
 	public int checksNumWallWalkChecksOOBBeforeRewind = 15;
 
 	// Push Back Override Settings
+	[Header("Push Back Override Settings")]
 	[Tooltip("Push Back Override\nOnly if a Prevention method is using mode Push Back\n\nUses a token bucket system to determine if a player has been getting pushed back for too long.  Also helps players who have gotten stuck in geometry.  For more information, see the README file on GitHub.\n\n(Default: true)")]
 	public bool pushBackOverride = true;
 	[Tooltip("Push Back Override - Refill Per Sec\nOnly if Push Back Override is enabled\n\nThe amount of tokens that are added to the bucket every second.  The correct proportion of tokens are added each frame to add up to this number per second.\n\n(Default: 30)")]
@@ -136,6 +148,7 @@ public class ArmSwinger : MonoBehaviour {
 	public float pushBackOverrideMaxTokens = 90;
 
 	// Rewind Settings
+	[Header("Rewind Settings")]
 	[SerializeField]
 	[Tooltip("Rewind - Min Distance Change To Save Position\nOnly if a prevention method is enabled\n\nMinimum distance in world units that the player must travel to trigger another saved rewind position.\n\n(Default: .05)")]
 	private float _rewindMinDistanceChangeToSavePosition = .05f;
