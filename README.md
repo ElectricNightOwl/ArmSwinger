@@ -373,19 +373,20 @@ You may have need to move your player in artificial ways separate from ArmSwinge
 
 Note that pausing/unpausing will not affect whether or not the feature is ENABLED globally.  If the feature is enabled and you pause it, the feature will stop working until you unpause.  If the feature is disabled and you pause it, there will be no change in functionality, even when you unpause.
 
-WARNING: These are considered EXPERIMENTAL and are not super-well tested yet.  Good luck.
+##### armSwinger.armSwingingPaused = {True, False}
+Prevents the player from arm swinging while true.
 
 ##### armSwinger.preventionsPaused = {True, False}
-Pauses all prevention mechanisms (Climbing, Falling, Wall Walking, Wall Clip)
+Pauses all prevention methods (Climbing, Falling, Instant, Wall Clip, etc) while true.
 
 ##### armSwinger.anglePreventionsPaused = {True, False}
-Pauses all angle-based prevention mechanisms (Climbing, Falling, Wall Walking)
+Pauses all angle-based prevention methods (Climbing, Falling, Instant) while true.
 
 ##### armSwinger.wallClipPreventionPaused = {True, False}
-Pauses Prevent Wall Clip, allowing the headset to enter geometry.
+Pauses wall clip prevention while true.
 
 ##### armSwinger.playAreaHeightAdjustmentPaused = {True, False}
-Pauses play area height adjustment while standing still.  Play area height will still be adjusted while arm swinging.  This functions identically to onlyHeightAdjustWhileArmSwinging.
+Pauses play area height adjustment unconditionally.  When this is changed from true to false, the play area will immediately be adjusted to the ground.
 
 ## How does it work?
 ### ArmSwing Locomotion
