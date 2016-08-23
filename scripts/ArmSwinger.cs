@@ -188,8 +188,8 @@ public class ArmSwinger : MonoBehaviour {
 	[HideInInspector]
 	public bool armSwinging = false;
 
-	// Prevention Method Pausing
-	[Header("Pause Toggles")]
+	// Pause Variables
+	[Header("Pause Variables")]
 	[SerializeField]
 	[Tooltip("Arm Swinging Paused\n\nPrevents the player from arm swinging while true.\n\n(Default: false)")]
 	private bool _armSwingingPaused = false;
@@ -203,7 +203,7 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("Wall Clip Prevention Paused\n\nPauses wall clip prevention while true.\n\n(Default: false)")]
 	private bool _wallClipPreventionPaused = false;
 	[SerializeField]
-	[Tooltip("Play Area Height Adjustment Paused\n\nPauses play area height adjustment while true\n\n(Default: false)")]
+	[Tooltip("Play Area Height Adjustment Paused\n\nPauses play area height adjustment unconditionally.  When this is changed from true to false, the play area will immediately be adjusted to the ground.\n\n(Default: false)")]
 	private bool _playAreaHeightAdjustmentPaused = false;
 	
 	// Controller positions
