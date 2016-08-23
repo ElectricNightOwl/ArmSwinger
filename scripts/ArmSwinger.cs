@@ -189,10 +189,21 @@ public class ArmSwinger : MonoBehaviour {
 	public bool armSwinging = false;
 
 	// Prevention Method Pausing
+	[Header("Pause Toggles")]
+	[SerializeField]
+	[Tooltip("Arm Swinging Paused\n\nPrevents the player from arm swinging while true.\n\n(Default: false)")]
 	private bool _armSwingingPaused = false;
+	[SerializeField]
+	[Tooltip("Preventions Paused\n\nPauses all prevention methods (Climbing, Falling, Instant, Wall Clip, etc) while true.\n\n(Default: false)")]
 	private bool _preventionsPaused = false;
+	[SerializeField]
+	[Tooltip("Angle Preventions Paused\n\nPauses all angle-based prevention methods (Climbing, Falling, Instant) while true.\n\n(Default: false)")]
 	private bool _anglePreventionsPaused = false;
+	[SerializeField]
+	[Tooltip("Wall Clip Prevention Paused\n\nPauses wall clip prevention while true.\n\n(Default: false)")]
 	private bool _wallClipPreventionPaused = false;
+	[SerializeField]
+	[Tooltip("Play Area Height Adjustment Paused\n\nPauses play area height adjustment while true\n\n(Default: false)")]
 	private bool _playAreaHeightAdjustmentPaused = false;
 	
 	// Controller positions
@@ -904,8 +915,8 @@ public class ArmSwinger : MonoBehaviour {
 				saveRewindPosition();
 			}
 
-			if (!outOfBounds && !wallClipThisFrame && currentPreventionReason == PreventionReason.NONE && !_playAreaHeightAdjustmentPaused) {
-				if (((raycastOnlyHeightAdjustWhileArmSwinging && armSwinging) || (!raycastOnlyHeightAdjustWhileArmSwinging)) && !playAreaHeightAdjustmentPaused) {
+			if (!outOfBounds && !wallClipThisFrame && currentPreventionReason == PreventionReason.NONE && !playAreaHeightAdjustmentPaused) {
+				if ((raycastOnlyHeightAdjustWhileArmSwinging && armSwinging) || (!raycastOnlyHeightAdjustWhileArmSwinging)) {
 					if (headsetCenterRaycastHitHistoryHeight.Count > 0) {
 						// Move the camera to adjust to the ground
 						cameraRigGameObject.transform.position = new Vector3(
@@ -1411,6 +1422,8 @@ public class ArmSwinger : MonoBehaviour {
 		}
 	}
 
+
+
 	/***** HELPER FUNCTIONS *****/
 
 	// Sets the button variables each frame
@@ -1690,12 +1703,18 @@ public class ArmSwinger : MonoBehaviour {
 
 	/***** PUBLIC FUNCTIONS *****/
 	// Moves the camera to another world position without a rewind
-	// Allows other scripts and mechanisms to artifically move the player without a rewind happening
+	// Also resets all caches and saved variables to prevent false OOB events
+	// Allows other scripts and ArmSwinger mechanisms to artifically move the player without a rewind happening
 	public void moveCameraRig(Vector3 newPosition, PreventionReason reason = PreventionReason.MANUAL) {
 		outOfBounds = true;
 		currentPreventionReason = reason;
-		//resetReasonHistory();
+
+		// Reset all caches
+		resetReasonHistory();
 		resetRaycastHitHistory();
+		latestArtificialMovement = 0f;
+		latestArtificialRotation = Quaternion.identity;
+
 		resetRewindPositions();
 		resetSavedPositions();
 
@@ -1881,6 +1900,10 @@ public class ArmSwinger : MonoBehaviour {
 			return _preventionsPaused;
 		}
 		set {
+			// If the pause is being set to false, use moveCameraRig to reset and seed necessary caches
+			if (value == false) {
+				moveCameraRig(cameraRigGameObject.transform.position);
+			}
 			_preventionsPaused = value;
 		}
 	}
@@ -1890,6 +1913,10 @@ public class ArmSwinger : MonoBehaviour {
 			return _anglePreventionsPaused;
 		}
 		set {
+			// If the pause is being set to false, use moveCameraRig to reset and seed necessary caches
+			if (value == false) {
+				moveCameraRig(cameraRigGameObject.transform.position);
+			}
 			_anglePreventionsPaused = value;
 		}
 	}
@@ -1908,6 +1935,10 @@ public class ArmSwinger : MonoBehaviour {
 			return _playAreaHeightAdjustmentPaused;
 		}
 		set {
+			// If the pause is being set to false, use moveCameraRig to reset and seed necessary caches
+			if (value == false) {
+				moveCameraRig(cameraRigGameObject.transform.position);
+			}
 			_playAreaHeightAdjustmentPaused = value;
 		}
 	}
@@ -1917,6 +1948,11 @@ public class ArmSwinger : MonoBehaviour {
 			return _armSwingingPaused;
 		}
 		set {
+			// If the pause is being set to false, reset the cached movement values so that unexpected inertia does not occur
+			if (value == false) {
+				latestArtificialMovement = 0f;
+				latestArtificialRotation = Quaternion.identity;
+			}
 			_armSwingingPaused = value;
 		}
 	}
