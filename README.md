@@ -92,7 +92,7 @@ Only in the Unity Asset Store version of ArmSwinger.  A locomotion test scene th
 Only in the Unity Asset Store version of ArmSwinger.  Textures, scripts, and other resources needed for the test environment only.
 
 ## Using ArmSwinger
-To begin moving, squeeze both grip buttons and swing your arms in the direction you'd like to go.  Speed and direction is controlled by the speed and rotation of your controllers.  You can move your headset freely while walking without affecting your direction.
+To begin moving, squeeze both controller buttons (grip by default) and swing your arms in the direction you'd like to go.  Speed and direction is controlled by the speed and rotation of your controllers.  You can move your headset freely while walking without affecting your direction.
 
 ArmSwinger has the optional ability to "rewind" your position if you go "out of bounds".  This is enabled by default.  Reasons for out of bounds include any or all of - headset into a wall, trying to climb a surface that is too steep, trying to fall down a surface that is too steep, trying to wall walk a steep surface, and the headset colliding with geometry.  All of these features are enabled by default with sane values.
 
@@ -399,7 +399,7 @@ Pauses play area height adjustment unconditionally.  When this is changed from t
 
 ## How does it work?
 ### ArmSwing Locomotion
-Your movement is based on the movement and rotation of both controllers.  When ArmSwinger is activated by holding one or both grip buttons (depending on Swing Mode), the script translates any X/Y/Z controller movement into play space movement.  The speed is based on the movement of one or both controllers.  The direction is the direction that one or both controllers are pointing.
+Your movement is based on the movement and rotation of both controllers.  When ArmSwinger is activated by holding one or both controller buttons (depending on Swing Mode), the script translates any X/Y/Z controller movement into play space movement.  The speed is based on the movement of one or both controllers.  The direction is the direction that one or both controllers are pointing.
 
 ### Play Area vertical adjustment
 The play area is constantly adjusted based on the position of the headset and the terrain underneath it.  Your physical floor will always match up with the terrain directly under your headset.  This occurs both when moving artificially and when moving physically.
