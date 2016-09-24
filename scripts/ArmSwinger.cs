@@ -25,8 +25,11 @@ public class ArmSwinger : MonoBehaviour {
 	[Tooltip("Arm Swing - Navigation\n\nEnables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode. \n\n(Default: true)")]
 	public bool armSwingNavigation = true;
 	[SerializeField]
-	[Tooltip("Arm Swing - Mode\nOnly if Arm Swing Navigation is enabled\n\nDetermines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.\n\nBoth Grips Both Controllers - Activate by squeezing both grips.  Both controllers are used for speed/direction.\n\nLeft Grip Both Controllers - Activate by squeezing left grip.  Both controllers are used for speed/direction.\n\nRight Grip Both Controllers - Activate by squeezing right grip.  Both controllers are used for speed/direction.\n\nOne Grip Same Controller - Activate by squeezing either grip.  That controller is used for speed/direction.  Can be combined with the other controller.\n\nOne Grip Same Controller Exclusive - Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.\n\n(Default: One Grip Same Controller)")]
-	private ArmSwingMode _armSwingMode = ArmSwingMode.OneGripSameController;
+	[Tooltip("Arm Swing - Button\nOnly if Arm Swing Navigation is enabled\n\nDefines which controller button is used to activate ArmSwinger.  The button is the same on both controllers.\n\n(Default: Grip button)")]
+	private ControllerButton _armSwingButton = ControllerButton.Grip;
+	[SerializeField]
+	[Tooltip("Arm Swing - Mode\nOnly if Arm Swing Navigation is enabled\n\nDetermines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.\n\nBoth Buttons Both Controllers - Activate by pushing both buttons on both controllers.  Both controllers are used for speed/direction.\n\nLeft Button Both Controllers - Activate by pushing the left controller button.  Both controllers are used for speed/direction.\n\nRight Button Both Controllers - Activate by pushing the right controller button.  Both controllers are used for speed/direction.\n\nOne Button Same Controller - Activate by pushing either controller's button.  That controller is used for speed/direction.  Can be combined with the other controller.\n\nOne Button Same Controller Exclusive - Activate by pushing either controller's button.  That controller is used for speed/direction.  Squeezing the button on the other controller will have no effect until the first controller button is released.\n\n(Default: One Button Same Controller)")]
+	private ArmSwingMode _armSwingMode = ArmSwingMode.OneButtonSameController;
 	[Tooltip("Arm Swing - Controller To Movement Curve\nOnly if Arm Swing Navigation is enabled.\n\nCurve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is Controller Speed For Max Speed (controller movement) and Max Speed (virtual momvement).\n\n(Default: Linear)")]
 	public AnimationCurve armSwingControllerToMovementCurve = new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(1, 1, 1, 1));
 	[SerializeField]
@@ -167,11 +170,18 @@ public class ArmSwinger : MonoBehaviour {
 
 	// Enums
 	public enum ArmSwingMode {
-		BothGripsBothControllers,
-		LeftGripBothControllers,
-		RightGripBothControllers,
-		OneGripSameController,
-		OneGripSameControllerExclusive
+		BothButtonsBothControllers,
+		LeftButtonBothControllers,
+		RightButtonBothControllers,
+		OneButtonSameController,
+		OneButtonSameControllerExclusive
+	};
+
+	public enum ControllerButton {
+		Menu,
+		Grip,
+		TouchPad,
+		Trigger
 	};
 
 	public enum PreventionReason { CLIMBING, FALLING, INSTANT_CLIMBING, INSTANT_FALLING, OHAWAS, HEADSET, WALLWALK, MANUAL, NO_GROUND, NONE };
@@ -256,9 +266,9 @@ public class ArmSwinger : MonoBehaviour {
 	private AnimationCurve inspectorCurve;
 
 	//// Controller buttons ////
-	private Valve.VR.EVRButtonId gripButton = Valve.VR.EVRButtonId.k_EButton_Grip;
-	private bool leftGripButtonPressed = false;
-	private bool rightGripButtonPressed = false;
+	private Valve.VR.EVRButtonId steamVRArmSwingButton;
+	private bool leftButtonPressed = false;
+	private bool rightButtonPressed = false;
 
 	//// Controllers ////
 	private SteamVR_ControllerManager controllerManager;
@@ -281,7 +291,7 @@ public class ArmSwinger : MonoBehaviour {
 	private float pushBackOverrideValue;
 	private bool pushBackOverrideActive = false;
 
-	// One Grip Same Controller Exclusive mode only
+	// One Button Same Controller Exclusive mode only
 	private GameObject activeSwingController = null;
 
 	// Prevent Wall Clip's HeadsetCollider script
@@ -307,6 +317,9 @@ public class ArmSwinger : MonoBehaviour {
 		headsetGameObject = GameObject.FindObjectOfType<SteamVR_Camera>().gameObject;
 		cameraRigGameObject = GameObject.FindObjectOfType<SteamVR_ControllerManager>().gameObject;
 
+		// Determine the Steam VR button for ArmSwinging
+		steamVRArmSwingButton = convertControllerButtonToSteamVRButton(armSwingButton);
+		
 		// Setup wall clipping on the headset gameobject, if enabled
 		if (preventWallClip) {
 			setupHeadsetCollider();
@@ -455,20 +468,20 @@ public class ArmSwinger : MonoBehaviour {
 
 		// Each swing activation mode has its own associated function
 		switch (armSwingMode) {
-			case ArmSwingMode.BothGripsBothControllers:
-				movedThisFrame = swingBothGripsBothControllers(ref movementAmount, ref movementRotation);
+			case ArmSwingMode.BothButtonsBothControllers:
+				movedThisFrame = swingBothButtonsBothControllers(ref movementAmount, ref movementRotation);
 				break;
-			case ArmSwingMode.LeftGripBothControllers:
-				movedThisFrame = swingLeftRightGripBothControllers(ref movementAmount, ref movementRotation);
+			case ArmSwingMode.LeftButtonBothControllers:
+				movedThisFrame = swingLeftRightButtonsBothControllers(ref movementAmount, ref movementRotation);
 				break;
-			case ArmSwingMode.RightGripBothControllers:
-				movedThisFrame = swingLeftRightGripBothControllers(ref movementAmount, ref movementRotation);
+			case ArmSwingMode.RightButtonBothControllers:
+				movedThisFrame = swingLeftRightButtonsBothControllers(ref movementAmount, ref movementRotation);
 				break;
-			case ArmSwingMode.OneGripSameController:
-				movedThisFrame = swingOneGripSameController(ref movementAmount, ref movementRotation);
+			case ArmSwingMode.OneButtonSameController:
+				movedThisFrame = swingOneButtonSameController(ref movementAmount, ref movementRotation);
 				break;
-			case ArmSwingMode.OneGripSameControllerExclusive:
-				movedThisFrame = swingOneGripSameControllerExclusive(ref movementAmount, ref movementRotation);
+			case ArmSwingMode.OneButtonSameControllerExclusive:
+				movedThisFrame = swingOneButtonSameControllerExclusive(ref movementAmount, ref movementRotation);
 				break;
 		}
 
@@ -507,9 +520,9 @@ public class ArmSwinger : MonoBehaviour {
 		}
 	}
 
-	// Arm Swing when armSwingMode is BothGripsBothControllers
-	bool swingBothGripsBothControllers(ref float movement, ref Quaternion rotation) {
-		if (leftGripButtonPressed && rightGripButtonPressed) {
+	// Arm Swing when armSwingMode is BothButtonsBothControllers
+	bool swingBothButtonsBothControllers(ref float movement, ref Quaternion rotation) {
+		if (leftButtonPressed && rightButtonPressed) {
 			// The rotation is the average of the two controllers
 			rotation = determineAverageControllerRotation();
 
@@ -549,10 +562,10 @@ public class ArmSwinger : MonoBehaviour {
 		}
 	}
 
-	// Arm Swing when armSwingMode is LeftGripBothControllers or RightGripBothControllers
-	bool swingLeftRightGripBothControllers(ref float movement, ref Quaternion rotation) {
-		if (armSwingMode == ArmSwingMode.LeftGripBothControllers && leftGripButtonPressed ||
-			armSwingMode == ArmSwingMode.RightGripBothControllers && rightGripButtonPressed) {
+	// Arm Swing when armSwingMode is LeftButtonBothControllers or RightButtonBothControllers
+	bool swingLeftRightButtonsBothControllers(ref float movement, ref Quaternion rotation) {
+		if (armSwingMode == ArmSwingMode.LeftButtonBothControllers && leftButtonPressed ||
+			armSwingMode == ArmSwingMode.RightButtonBothControllers && rightButtonPressed) {
 
 			// The rotation is the average of the two controllers
 			rotation = determineAverageControllerRotation();
@@ -593,9 +606,9 @@ public class ArmSwinger : MonoBehaviour {
 		}
 	}
 
-	// Arm Swing when armSwingMode is OneGripSameController
-	bool swingOneGripSameController(ref float movement, ref Quaternion rotation) {
-		if (leftGripButtonPressed && rightGripButtonPressed) {
+	// Arm Swing when armSwingMode is OneButtonSameController
+	bool swingOneButtonSameController(ref float movement, ref Quaternion rotation) {
+		if (leftButtonPressed && rightButtonPressed) {
 			// The rotation is the average of the two controllers
 			rotation = determineAverageControllerRotation();
 
@@ -620,7 +633,7 @@ public class ArmSwinger : MonoBehaviour {
 
 			return true;
 		}
-		else if (leftGripButtonPressed) {
+		else if (leftButtonPressed) {
 			// The rotation is the rotation of the left controller
 			rotation = leftControllerGameObject.transform.rotation;
 
@@ -643,7 +656,7 @@ public class ArmSwinger : MonoBehaviour {
 
 			return true;
 		}
-		else if (rightGripButtonPressed) {
+		else if (rightButtonPressed) {
 			// The rotation is the rotation of the right controller
 			rotation = rightControllerGameObject.transform.rotation;
 
@@ -681,24 +694,24 @@ public class ArmSwinger : MonoBehaviour {
 		}
 	}
 
-	// Arm Swing when armSwingMode is OneGripSameControllerExclusive
-	bool swingOneGripSameControllerExclusive(ref float movement, ref Quaternion rotation) {
+	// Arm Swing when armSwingMode is OneButtonSameControllerExclusive
+	bool swingOneButtonSameControllerExclusive(ref float movement, ref Quaternion rotation) {
 
 		// First, we clear the active controller if it's not being used anymore
-		// If there is an active controller (previously defined), that active controller is the left controller, and the left grip is NOT pressed
+		// If there is an active controller (previously defined), that active controller is the left controller, and the left controller button is NOT pressed
 		// OR
-		// If there is an active controller (previously defined), that active controller is the right controller, and the right grip is NOT pressed
-		if ((activeSwingController && activeSwingController == leftControllerGameObject && !leftGripButtonPressed) ||
-			(activeSwingController && activeSwingController == rightControllerGameObject && !rightGripButtonPressed)) {
+		// If there is an active controller (previously defined), that active controller is the right controller, and the right controller button is NOT pressed
+		if ((activeSwingController && activeSwingController == leftControllerGameObject && !leftButtonPressed) ||
+			(activeSwingController && activeSwingController == rightControllerGameObject && !rightButtonPressed)) {
 			activeSwingController = null;
 		}
 
-		// If there is no currently active swing controller and the left grip is pushed, make left controller active
-		if (!activeSwingController && leftGripButtonPressed) {
+		// If there is no currently active swing controller and the left controller button is pushed, make left controller active
+		if (!activeSwingController && leftButtonPressed) {
 			activeSwingController = leftControllerGameObject;
 		}
-		// If there is no currently active swing controller and the right grip is pushed, make right controller active
-		else if (!activeSwingController && rightGripButtonPressed) {
+		// If there is no currently active swing controller and the right controller button is pushed, make right controller active
+		else if (!activeSwingController && rightButtonPressed) {
 			activeSwingController = rightControllerGameObject;
 		}
 
@@ -1437,10 +1450,10 @@ public class ArmSwinger : MonoBehaviour {
 		}
 
 		if (newLeftControllerIndex != -1) {
-			leftGripButtonPressed = leftController.GetPress(gripButton);
+			leftButtonPressed = leftController.GetPress(steamVRArmSwingButton);
 		}
 		else {
-			leftGripButtonPressed = false;
+			leftButtonPressed = false;
 		}
 
 		//Right
@@ -1452,11 +1465,36 @@ public class ArmSwinger : MonoBehaviour {
 		}
 
 		if (newRightControllerIndex != -1) {
-			rightGripButtonPressed = rightController.GetPress(gripButton);
+			rightButtonPressed = rightController.GetPress(steamVRArmSwingButton);
 		}
 		else {
-			rightGripButtonPressed = false;
+			rightButtonPressed = false;
 		}
+	}
+
+	// Assigns the real SteamVR button based on the user selection
+	Valve.VR.EVRButtonId convertControllerButtonToSteamVRButton(ControllerButton controllerButton) {
+		EVRButtonId returnValue;
+
+		switch (controllerButton) {
+			case ControllerButton.Grip:
+				returnValue = EVRButtonId.k_EButton_Grip;
+				break;
+			case ControllerButton.Menu:
+				returnValue = EVRButtonId.k_EButton_ApplicationMenu;
+				break;
+			case ControllerButton.TouchPad:
+				returnValue = EVRButtonId.k_EButton_SteamVR_Touchpad;
+				break;
+			case ControllerButton.Trigger:
+				returnValue = EVRButtonId.k_EButton_SteamVR_Trigger;
+				break;
+			default:
+				returnValue = EVRButtonId.k_EButton_Grip;
+				break;
+		}
+
+		return returnValue;
 	}
 
 	// Returns the average of two Quaternions
@@ -2044,6 +2082,16 @@ public class ArmSwinger : MonoBehaviour {
 		set {
 			latestArtificialMovement = 0f;
 			_stoppingInertia = value;
+		}
+	}
+
+	public ControllerButton armSwingButton {
+		get {
+			return _armSwingButton;
+		}
+		set {
+			steamVRArmSwingButton = convertControllerButtonToSteamVRButton(value);
+			_armSwingButton = value;
 		}
 	}
 }
