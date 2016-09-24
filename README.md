@@ -122,19 +122,28 @@ In order for ArmSwinger to handle movement and wall collisions correctly, Time.f
 #### Arm Swing - Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode.
 
+#### Arm Swing - Button
+Only if Arm Swing Navigation is enabled.  Defines which controller button is used to activate ArmSwinger.  The button is the same on both controllers.
+
+Options:
+- Application Menu Button
+- Grip
+- Touchpad Click
+- Trigger
+
 #### Arm Swing - Swing Mode
 Only if Arm Swing Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
 
-- Both Grips Both Controllers
- - Activate by squeezing both grips.  Both controllers are used for speed/direction.
-- Left Grip Both Controllers
- - Activate by squeezing left grip.  Both controllers are used for speed/direction.
-- Right Grip Both Controllers
- - Activate by squeezing right grip.  Both controllers are used for speed/direction.
-- One Grip Same Controller
- - Activate by squeezing either grip.  That controller is used for speed/direction.  Can be combined with the other controller.
-- One Grip Same Controller Exclusive
- - Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
+- Both Buttons Both Controllers
+ - Activate by pushing both controller buttons.  Both controllers are used for speed/direction.
+- Left Button Both Controllers
+ - Activate by pushing left controller button.  Both controllers are used for speed/direction.
+- Right Button Both Controllers
+ - Activate by pushing right controller button.  Both controllers are used for speed/direction.
+- One Button Same Controller
+ - Activate by pushing either controller button.  That controller is used for speed/direction.  Can be combined with the other controller.
+- One Button Same Controller Exclusive
+ - Activate by pushing either controller button.  That controller is used for speed/direction.  Pushing the button on the other controller will have no effect until the first controller button is released.
 
 #### Arm Swing - Controller To Movement Curve
 Only if Arm Swing Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is "Arm Swing - Controller Speed For Max Speed" (controller movement) and "Arm Swing - Max Speed" (virtual momvement).
