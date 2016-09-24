@@ -92,7 +92,7 @@ Only in the Unity Asset Store version of ArmSwinger.  A locomotion test scene th
 Only in the Unity Asset Store version of ArmSwinger.  Textures, scripts, and other resources needed for the test environment only.
 
 ## Using ArmSwinger
-To begin moving, squeeze both grip buttons and swing your arms in the direction you'd like to go.  Speed and direction is controlled by the speed and rotation of your controllers.  You can move your headset freely while walking without affecting your direction.
+To begin moving, squeeze both controller buttons (grip by default) and swing your arms in the direction you'd like to go.  Speed and direction is controlled by the speed and rotation of your controllers.  You can move your headset freely while walking without affecting your direction.
 
 ArmSwinger has the optional ability to "rewind" your position if you go "out of bounds".  This is enabled by default.  Reasons for out of bounds include any or all of - headset into a wall, trying to climb a surface that is too steep, trying to fall down a surface that is too steep, trying to wall walk a steep surface, and the headset colliding with geometry.  All of these features are enabled by default with sane values.
 
@@ -122,19 +122,28 @@ In order for ArmSwinger to handle movement and wall collisions correctly, Time.f
 #### Arm Swing - Navigation
 Enables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode.
 
+#### Arm Swing - Button
+Only if Arm Swing Navigation is enabled.  Defines which controller button is used to activate ArmSwinger.  The button is the same on both controllers.
+
+Options:
+- Application Menu Button
+- Grip
+- Touchpad Click
+- Trigger
+
 #### Arm Swing - Swing Mode
 Only if Arm Swing Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
 
-- Both Grips Both Controllers
- - Activate by squeezing both grips.  Both controllers are used for speed/direction.
-- Left Grip Both Controllers
- - Activate by squeezing left grip.  Both controllers are used for speed/direction.
-- Right Grip Both Controllers
- - Activate by squeezing right grip.  Both controllers are used for speed/direction.
-- One Grip Same Controller
- - Activate by squeezing either grip.  That controller is used for speed/direction.  Can be combined with the other controller.
-- One Grip Same Controller Exclusive
- - Activate by squeezing either grip.  That controller is used for speed/direction.  Squeezing the grip on the other controller will have no effect until the first controller grip is released.
+- Both Buttons Both Controllers
+ - Activate by pushing both controller buttons.  Both controllers are used for speed/direction.
+- Left Button Both Controllers
+ - Activate by pushing left controller button.  Both controllers are used for speed/direction.
+- Right Button Both Controllers
+ - Activate by pushing right controller button.  Both controllers are used for speed/direction.
+- One Button Same Controller
+ - Activate by pushing either controller button.  That controller is used for speed/direction.  Can be combined with the other controller.
+- One Button Same Controller Exclusive
+ - Activate by pushing either controller button.  That controller is used for speed/direction.  Pushing the button on the other controller will have no effect until the first controller button is released.
 
 #### Arm Swing - Controller To Movement Curve
 Only if Arm Swing Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is "Arm Swing - Controller Speed For Max Speed" (controller movement) and "Arm Swing - Max Speed" (virtual momvement).
@@ -390,7 +399,7 @@ Pauses play area height adjustment unconditionally.  When this is changed from t
 
 ## How does it work?
 ### ArmSwing Locomotion
-Your movement is based on the movement and rotation of both controllers.  When ArmSwinger is activated by holding one or both grip buttons (depending on Swing Mode), the script translates any X/Y/Z controller movement into play space movement.  The speed is based on the movement of one or both controllers.  The direction is the direction that one or both controllers are pointing.
+Your movement is based on the movement and rotation of both controllers.  When ArmSwinger is activated by holding one or both controller buttons (depending on Swing Mode), the script translates any X/Y/Z controller movement into play space movement.  The speed is based on the movement of one or both controllers.  The direction is the direction that one or both controllers are pointing.
 
 ### Play Area vertical adjustment
 The play area is constantly adjusted based on the position of the headset and the terrain underneath it.  Your physical floor will always match up with the terrain directly under your headset.  This occurs both when moving artificially and when moving physically.
