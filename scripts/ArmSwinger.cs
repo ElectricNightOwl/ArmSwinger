@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Valve.VR;
@@ -176,7 +176,13 @@ public class ArmSwinger : MonoBehaviour {
 		OneButtonSameController,
 		OneButtonSameControllerExclusive
 	};
-
+  public enum AxisName
+    {
+        Top,
+        Left,
+        Right,
+        Bottom,
+    };
 	public enum ControllerButton {
 		Menu,
 		Grip,
@@ -269,6 +275,8 @@ public class ArmSwinger : MonoBehaviour {
 	private Valve.VR.EVRButtonId steamVRArmSwingButton;
 	private bool leftButtonPressed = false;
 	private bool rightButtonPressed = false;
+	public bool useAxis;
+    public AxisName axisName;
 
 	//// Controllers ////
 	private SteamVR_ControllerManager controllerManager;
@@ -1450,7 +1458,23 @@ public class ArmSwinger : MonoBehaviour {
 		}
 
 		if (newLeftControllerIndex != -1) {
-			leftButtonPressed = leftController.GetPress(steamVRArmSwingButton);
+		if (useAxis)
+            {
+                if (leftController.GetPress(EVRButtonId.k_EButton_SteamVR_Touchpad))
+                {
+                    Vector2 axisData = leftController.GetAxis(gripButton);
+
+                    leftButtonPressed = CheckAxisPress(axisData);
+
+                }
+                else
+                    leftButtonPressed = false;
+            }
+            else
+            {
+      			leftButtonPressed = leftController.GetPress(steamVRArmSwingButton);
+            }
+
 		}
 		else {
 			leftButtonPressed = false;
@@ -1465,7 +1489,24 @@ public class ArmSwinger : MonoBehaviour {
 		}
 
 		if (newRightControllerIndex != -1) {
-			rightButtonPressed = rightController.GetPress(steamVRArmSwingButton);
+		 if (useAxis)
+            {
+                if (rightController.GetPress(EVRButtonId.k_EButton_SteamVR_Touchpad))
+                {
+                    Vector2 axisData = rightController.GetAxis(steamVRArmSwingButton);
+
+                    rightButtonPressed = CheckAxisPress(axisData);
+                }
+                else
+                {
+                    rightButtonPressed = false;
+                }
+            }
+            else
+            {
+               	rightButtonPressed = rightController.GetPress(steamVRArmSwingButton);
+            }
+		
 		}
 		else {
 			rightButtonPressed = false;
@@ -1738,7 +1779,38 @@ public class ArmSwinger : MonoBehaviour {
 		cameraRigPreviousPositions.Clear();
 		headsetPreviousLocalPositions.Clear();
 	}
-
+  private bool CheckAxisPress(Vector2 axisData)
+    {
+        if (axisName == AxisName.Top)
+        {
+            if ((axisData.x < 0.5f && axisData.x > -0.5f) && axisData.y > 0)
+            {
+                return true;
+            }
+        }
+        else if (axisName == AxisName.Bottom)
+        {
+            if ((axisData.x < 0.5f && axisData.x > -0.5f) && axisData.y < 0)
+            {
+                return true;
+            }
+        }
+        else if (axisName == AxisName.Right)
+        {
+            if ((axisData.y < 0.5f && axisData.y > -0.5f) && axisData.x > 0)
+            {
+                return true;
+            }
+        }
+        else if (axisName == AxisName.Left)
+        {
+            if ((axisData.y < 0.5f && axisData.y > -0.5f) && axisData.x < 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 	/***** PUBLIC FUNCTIONS *****/
 	// Moves the camera to another world position without a rewind
 	// Also resets all caches and saved variables to prevent false OOB events
