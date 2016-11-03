@@ -223,15 +223,16 @@ public class ArmSwinger : MonoBehaviour {
 	private Vector3 rightControllerPreviousLocalPosition;
 
 	// Headset/Camera Rig saved position history
-	private LinkedList<Vector3> headsetPreviousLocalPositions = new LinkedList<Vector3>();
-	private Vector3 lastHeadsetLocalPositionSaved = new Vector3(0, 0, 0);
-	private LinkedList<Vector3> cameraRigPreviousPositions = new LinkedList<Vector3>();
-	private Vector3 lastCameraRigPositionSaved = new Vector3(0, 0, 0);
+	private LinkedList<Vector3> previousHeadsetRewindPositions = new LinkedList<Vector3>();
+	private Vector3 lastHeadsetRewindPositionSaved = new Vector3(0, 0, 0);
+	private LinkedList<Vector3> previousCameraRigRewindPositions = new LinkedList<Vector3>();
+	private Vector3 lastCameraRigRewindPositionSaved = new Vector3(0, 0, 0);
 	private Vector3 previousAngleCheckHeadsetPosition;
 
-	private int previousPositionSize = 5;
-	private LinkedList<Vector3> previousCameraRigPositions = new LinkedList<Vector3>();
-	private LinkedList<Vector3> previousHeadsetLocalPositions = new LinkedList<Vector3>();
+	// Pushback positions
+	private int previousPushbackPositionSize = 5;
+	private LinkedList<Vector3> previousCameraRigPushBackPositions = new LinkedList<Vector3>();
+	private LinkedList<Vector3> previousHeadsetPushBackPositions = new LinkedList<Vector3>();
 
 	// RaycastHit histories
 	private List<RaycastHit> headsetCenterRaycastHitHistoryPrevention = new List<RaycastHit>(); // History of headset center RaycastHits used for prevention checks
@@ -402,11 +403,11 @@ public class ArmSwinger : MonoBehaviour {
 
 		// Only copy safe spots for push backs
 		if (!outOfBounds && !wallClipThisFrame && !rewindThisFrame) {
-			if ((previousCameraRigPositions.Last.Value != cameraRigGameObject.transform.position) ||
-				(previousHeadsetLocalPositions.Last.Value != headsetGameObject.transform.localPosition)) {
+			if ((previousCameraRigPushBackPositions.Last.Value != cameraRigGameObject.transform.position) ||
+				(previousHeadsetPushBackPositions.Last.Value != headsetGameObject.transform.position)) {
 
-				savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, previousPositionSize);
-				savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, previousPositionSize);
+				savePosition(previousCameraRigPushBackPositions, cameraRigGameObject.transform.position, previousPushbackPositionSize);
+				savePosition(previousHeadsetPushBackPositions, headsetGameObject.transform.position, previousPushbackPositionSize);
 			}
 		}
 
@@ -1179,7 +1180,7 @@ public class ArmSwinger : MonoBehaviour {
 		// Determine what previous positions we need to rewind to
 		determinePreviousPositionToRewindTo(ref cameraRigPreviousPositionToRewindTo, ref headsetPreviousPositionToRewindTo, preventionMode);
 
-		Vector3 newCameraRigPosition = calculateCameraRigRewindPosition(cameraRigPreviousPositionToRewindTo, headsetPreviousPositionToRewindTo, cameraRigGameObject.transform.position, headsetGameObject.transform.localPosition, preventionMode);
+		Vector3 newCameraRigPosition = calculateCameraRigRewindPosition(cameraRigPreviousPositionToRewindTo, headsetPreviousPositionToRewindTo, cameraRigGameObject.transform.position, headsetGameObject.transform.position, preventionMode);
 
 		cameraRigGameObject.transform.position = newCameraRigPosition;
 
@@ -1211,8 +1212,8 @@ public class ArmSwinger : MonoBehaviour {
 			// If the player is ArmSwinging, we need to push back farther in order to ensure their headset doesn't get stuck in the wall
 			// So, we grab the oldest position in the cache
 			if (armSwinging) {
-				cameraRigPreviousPositionToRewindTo = previousCameraRigPositions.First.Value;
-				headsetPreviousPositionToRewindTo = previousHeadsetLocalPositions.First.Value;
+				cameraRigPreviousPositionToRewindTo = previousCameraRigPushBackPositions.First.Value;
+				headsetPreviousPositionToRewindTo = previousHeadsetPushBackPositions.First.Value;
 
 				// Replace all positions with the safe ones we just found
 				seedSavedPositions(cameraRigPreviousPositionToRewindTo, headsetPreviousPositionToRewindTo);
@@ -1221,45 +1222,45 @@ public class ArmSwinger : MonoBehaviour {
 			else {
 
 				// The last (most recent) position stored is what got us in this mess to begin with
-				previousCameraRigPositions.RemoveLast();
-				previousHeadsetLocalPositions.RemoveLast();
+				previousCameraRigPushBackPositions.RemoveLast();
+				previousHeadsetPushBackPositions.RemoveLast();
 
 				// The "last" position is now the one before this frame, so we know it's safe
-				cameraRigPreviousPositionToRewindTo = previousCameraRigPositions.Last.Value;
-				headsetPreviousPositionToRewindTo = previousHeadsetLocalPositions.Last.Value;
+				cameraRigPreviousPositionToRewindTo = previousCameraRigPushBackPositions.Last.Value;
+				headsetPreviousPositionToRewindTo = previousHeadsetPushBackPositions.Last.Value;
 
 				// Note that we don't drain / re-seed the cache.  This will allow us to roll back even farther if necessary.
 			}
 		}
 		// REWIND		
 		// If the headset/rig caches have at least rewindNumSavedPositionsToRewind worth of positions in the cache
-		else if (headsetPreviousLocalPositions.Count >= rewindNumSavedPositionsToRewind && cameraRigPreviousPositions.Count >= rewindNumSavedPositionsToRewind) {
+		else if (previousHeadsetRewindPositions.Count >= rewindNumSavedPositionsToRewind && previousCameraRigRewindPositions.Count >= rewindNumSavedPositionsToRewind) {
 
 			for (int trimCounter = 1; trimCounter < rewindNumSavedPositionsToRewind; trimCounter++) {
-				headsetPreviousLocalPositions.RemoveLast();
-				cameraRigPreviousPositions.RemoveLast();
+				previousHeadsetRewindPositions.RemoveLast();
+				previousCameraRigRewindPositions.RemoveLast();
 			}
 
-			headsetPreviousPositionToRewindTo = headsetPreviousLocalPositions.Last.Value;
-			cameraRigPreviousPositionToRewindTo = cameraRigPreviousPositions.Last.Value;
+			headsetPreviousPositionToRewindTo = previousHeadsetRewindPositions.Last.Value;
+			cameraRigPreviousPositionToRewindTo = previousCameraRigRewindPositions.Last.Value;
 		}
 		// if the caches have less than rewindNumSavedPositionsToRewind postions, drain them to 1 and use that
 		else {
-			for (int trimCounter = 1; trimCounter < headsetPreviousLocalPositions.Count; trimCounter++) {
-				headsetPreviousLocalPositions.RemoveLast();
-				cameraRigPreviousPositions.RemoveLast();
+			for (int trimCounter = 1; trimCounter < previousHeadsetRewindPositions.Count; trimCounter++) {
+				previousHeadsetRewindPositions.RemoveLast();
+				previousCameraRigRewindPositions.RemoveLast();
 			}
 
-			headsetPreviousPositionToRewindTo = headsetPreviousLocalPositions.Last.Value;
-			cameraRigPreviousPositionToRewindTo = cameraRigPreviousPositions.Last.Value;
+			headsetPreviousPositionToRewindTo = previousHeadsetRewindPositions.Last.Value;
+			cameraRigPreviousPositionToRewindTo = previousCameraRigRewindPositions.Last.Value;
 
 		}
 	}
 
-	static Vector3 calculateCameraRigRewindPosition(Vector3 cameraRigPreviousPosition, Vector3 headsetPreviousLocalPosition, Vector3 cameraRigPosition, Vector3 headsetLocalPosition, PreventionMode preventionMode) {
+	static Vector3 calculateCameraRigRewindPosition(Vector3 cameraRigPreviousPosition, Vector3 headsetPreviousPosition, Vector3 cameraRigPosition, Vector3 headsetPosition, PreventionMode preventionMode) {
 
 		// We only care about the X/Z positioning of the headset
-		Vector3 headsetPositionDifference = ArmSwinger.vector3XZOnly(headsetPreviousLocalPosition) - ArmSwinger.vector3XZOnly(headsetLocalPosition);
+		Vector3 headsetPositionDifference = ArmSwinger.vector3XZOnly(headsetPreviousPosition) - ArmSwinger.vector3XZOnly(headsetPosition);
 
 		Vector3 returnPosition = cameraRigPreviousPosition + headsetPositionDifference;
 
@@ -1291,10 +1292,10 @@ public class ArmSwinger : MonoBehaviour {
 
 		// Unconditionally save regardless of settings
 		if (force) {
-			cameraRigPreviousPositions.AddLast(cameraRigGameObject.transform.position);
-			headsetPreviousLocalPositions.AddLast(headsetGameObject.transform.localPosition);
-			lastCameraRigPositionSaved = cameraRigGameObject.transform.position;
-			lastHeadsetLocalPositionSaved = headsetGameObject.transform.localPosition;
+			previousCameraRigRewindPositions.AddLast(cameraRigGameObject.transform.position);
+			previousHeadsetRewindPositions.AddLast(headsetGameObject.transform.position);
+			lastCameraRigRewindPositionSaved = cameraRigGameObject.transform.position;
+			lastHeadsetRewindPositionSaved = headsetGameObject.transform.position;
 		}
 
 		// If you're out of bounds, DEFINITELY don't want to save this position
@@ -1302,7 +1303,7 @@ public class ArmSwinger : MonoBehaviour {
 			return;
 		}
 
-		Vector3 previousSavedPosInWorldUnits = lastCameraRigPositionSaved + lastHeadsetLocalPositionSaved;
+		Vector3 previousSavedPosInWorldUnits = lastCameraRigRewindPositionSaved + lastHeadsetRewindPositionSaved;
 
 		// If the distance between the previous saved position and the current position is too small, bail out 
 		if (isDistanceFarEnough(previousSavedPosInWorldUnits, headsetGameObject.transform.position, rewindMinDistanceChangeToSavePosition) == false) {
@@ -1339,13 +1340,13 @@ public class ArmSwinger : MonoBehaviour {
 			// this is an unsafe position
 
 			// If the camera rig is moving up, compare to preventClimbingMaxAnglePlayerCanClimb
-			if (cameraRigGameObject.transform.position.y > cameraRigPreviousPositions.Last.Value.y) {
+			if (cameraRigGameObject.transform.position.y > previousCameraRigRewindPositions.Last.Value.y) {
 				if (Mathf.Abs(latestSideChangeAngle) > preventClimbingMaxAnglePlayerCanClimb) {
 					isPositionSafe = false;
 				}
 			}
 			// If the camera rig is moving down, compare to preventFallingMaxAnglePlayerCanFall
-			if (cameraRigGameObject.transform.position.y < cameraRigPreviousPositions.Last.Value.y) {
+			if (cameraRigGameObject.transform.position.y < previousCameraRigRewindPositions.Last.Value.y) {
 				if (Mathf.Abs(latestSideChangeAngle) > preventFallingMaxAnglePlayerCanFall) {
 					isPositionSafe = false;
 				}
@@ -1354,18 +1355,18 @@ public class ArmSwinger : MonoBehaviour {
 
 		// if the assumption that the position is safe survives this long, it must be safe!
 		if (isPositionSafe) {
-			cameraRigPreviousPositions.AddLast(cameraRigGameObject.transform.position);
-			headsetPreviousLocalPositions.AddLast(headsetGameObject.transform.localPosition);
-			lastCameraRigPositionSaved = cameraRigGameObject.transform.position;
-			lastHeadsetLocalPositionSaved = headsetGameObject.transform.localPosition;
+			previousCameraRigRewindPositions.AddLast(cameraRigGameObject.transform.position);
+			previousHeadsetRewindPositions.AddLast(headsetGameObject.transform.position);
+			lastCameraRigRewindPositionSaved = cameraRigGameObject.transform.position;
+			lastHeadsetRewindPositionSaved = headsetGameObject.transform.position;
 		}
 
 		// If the number of positions in the queue is > the number of rewind frames we store, pop the oldest stored position
-		while (cameraRigPreviousPositions.Count > rewindNumSavedPositionsToStore) {
-			cameraRigPreviousPositions.RemoveFirst();
+		while (previousCameraRigRewindPositions.Count > rewindNumSavedPositionsToStore) {
+			previousCameraRigRewindPositions.RemoveFirst();
 		}
-		while (headsetPreviousLocalPositions.Count > rewindNumSavedPositionsToStore) {
-			headsetPreviousLocalPositions.RemoveFirst();
+		while (previousHeadsetRewindPositions.Count > rewindNumSavedPositionsToStore) {
+			previousHeadsetRewindPositions.RemoveFirst();
 		}
 	}
 
@@ -1703,8 +1704,8 @@ public class ArmSwinger : MonoBehaviour {
 	}
 
 	void resetSavedPositions() {
-		previousCameraRigPositions.Clear();
-		previousCameraRigPositions.Clear();
+		previousCameraRigPushBackPositions.Clear();
+		previousCameraRigPushBackPositions.Clear();
 	}
 
 	void seedRaycastHitHistory() {
@@ -1717,23 +1718,23 @@ public class ArmSwinger : MonoBehaviour {
 	}
 
 	void seedSavedPositions() {
-		for (int count = 0; count < previousPositionSize; count++) {
-			savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, previousPositionSize);
-			savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, previousPositionSize);
+		for (int count = 0; count < previousPushbackPositionSize; count++) {
+			savePosition(previousCameraRigPushBackPositions, cameraRigGameObject.transform.position, previousPushbackPositionSize);
+			savePosition(previousHeadsetPushBackPositions, headsetGameObject.transform.position, previousPushbackPositionSize);
 		}
 	}
 
-	void seedSavedPositions(Vector3 cameraRigPosition, Vector3 headsetLocalPosition) {
-		for (int count = 0; count < previousPositionSize; count++) {
-			savePosition(previousCameraRigPositions, cameraRigPosition, previousPositionSize);
-			savePosition(previousHeadsetLocalPositions, headsetLocalPosition, previousPositionSize);
+	void seedSavedPositions(Vector3 cameraRigPosition, Vector3 headsetPosition) {
+		for (int count = 0; count < previousPushbackPositionSize; count++) {
+			savePosition(previousCameraRigPushBackPositions, cameraRigPosition, previousPushbackPositionSize);
+			savePosition(previousHeadsetPushBackPositions, headsetPosition, previousPushbackPositionSize);
 		}
 	}
 
 
 	void resetRewindPositions() {
-		cameraRigPreviousPositions.Clear();
-		headsetPreviousLocalPositions.Clear();
+		previousCameraRigRewindPositions.Clear();
+		previousHeadsetRewindPositions.Clear();
 	}
 
 	/***** PUBLIC FUNCTIONS *****/
@@ -1770,14 +1771,6 @@ public class ArmSwinger : MonoBehaviour {
 		if (raycastOnlyHeightAdjustWhileArmSwinging || playAreaHeightAdjustmentPaused) {
 			adjustCameraRig();
 		}
-	}
-
-	public Vector3 getHeadsetLocalPosition() {
-		return headsetGameObject.transform.localPosition;
-	}
-
-	public Vector3 getCameraRigPosition() {
-		return cameraRigGameObject.transform.position;
 	}
 
 	/***** GET SET *****/
