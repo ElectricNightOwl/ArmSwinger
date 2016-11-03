@@ -404,7 +404,6 @@ public class ArmSwinger : MonoBehaviour {
 		if (!outOfBounds && !wallClipThisFrame && !rewindThisFrame) {
 			if ((previousCameraRigPositions.Last.Value != cameraRigGameObject.transform.position) ||
 				(previousHeadsetLocalPositions.Last.Value != headsetGameObject.transform.localPosition)) {
-				//Debug.Log(Time.frameCount + "|ArmSwinger.FixedUpdate():: Saving " + cameraRigGameObject.transform.position + headsetGameObject.transform.localPosition);
 
 				savePosition(previousCameraRigPositions, cameraRigGameObject.transform.position, previousPositionSize);
 				savePosition(previousHeadsetLocalPositions, headsetGameObject.transform.localPosition, previousPositionSize);
@@ -940,7 +939,7 @@ public class ArmSwinger : MonoBehaviour {
 				}
 			}
 		} else {
-			triggerRewind(PreventionReason.NO_GROUND);
+			//triggerRewind(PreventionReason.NO_GROUND);
 		}
 	}
 
@@ -1179,8 +1178,6 @@ public class ArmSwinger : MonoBehaviour {
 
 		// Determine what previous positions we need to rewind to
 		determinePreviousPositionToRewindTo(ref cameraRigPreviousPositionToRewindTo, ref headsetPreviousPositionToRewindTo, preventionMode);
-
-		//Debug.Log(Time.frameCount + "|ArmSwinger.rewindPosition():: Mode " + preventionMode + " to " + cameraRigPreviousPositionToRewindTo + headsetPreviousPositionToRewindTo);
 
 		Vector3 newCameraRigPosition = calculateCameraRigRewindPosition(cameraRigPreviousPositionToRewindTo, headsetPreviousPositionToRewindTo, cameraRigGameObject.transform.position, headsetGameObject.transform.localPosition, preventionMode);
 
