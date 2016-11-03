@@ -25,6 +25,10 @@ public class HeadsetCollider : MonoBehaviour {
 
 	private LayerMask groundRayLayerMask;
 
+	// Track previous collision position
+	private Vector3 previousCollisionPosition;
+	private Quaternion previousCollisionRotation;
+
 	//////////////////////
 	// INITIATILIZATION //
 	//////////////////////
@@ -65,6 +69,10 @@ public class HeadsetCollider : MonoBehaviour {
 			}
 		}
 
+		// Initial collision position
+		previousCollisionPosition = this.transform.position;
+		previousCollisionRotation = this.transform.rotation;
+
 		armSwinger = GameObject.FindObjectOfType<ArmSwinger>();
 
 	}
@@ -95,12 +103,22 @@ public class HeadsetCollider : MonoBehaviour {
 
 				foreach (ContactPoint contactPoint in collision.contacts) {
 					Vector3 normalOfCollisionPoint = contactPoint.normal;
+					
 					float angleOfCollisionPoint = Vector3.Angle(Vector3.up, normalOfCollisionPoint);
+
+					//Debug.Log("this.transform=" + this.transform);
+					//Debug.Log("previousCollisionTransform=" + previousCollisionTransform);
+
+					if (this.transform.position == previousCollisionPosition && this.transform.rotation == previousCollisionRotation) {
+						return;
+					}
 
 					if (angleOfCollisionPoint >= minAngleToRewindDueToWallClip) {
 						inGeometry = true;
 						armSwinger.triggerRewind(ArmSwinger.PreventionReason.HEADSET);
 						armSwinger.wallClipThisFrame = true;
+						previousCollisionPosition = this.transform.position;
+						previousCollisionRotation = this.transform.rotation;
 						return;
 					}
 				}
