@@ -252,12 +252,6 @@ Only if Prevent Wall Clip is enabled.  Sets the radius of the sphere collider us
 #### Prevent Wall Clip - Min Angle To Trigger
 Only if Prevent Wall Clip is enabled.  Sets the minimum angle a "wall" should be in order to trigger Prevent Wall Clip if the headset collides with it.  0 is flat ground, 90 degree is a straight up wall.  This prevents rewinds from happening if the headset is placed on the physical floor and the headset collides with the virtual floor.
 
-#### Prevent Wall Clip - Speed Penalty Coefficient
-Only if Prevent Wall Clip is enabled.  When players arm swing directly into the wall, their speed will be multiplied by this amount for preventWallClipSpeedPenaltyTime seconds.  This helps prevent judder while Prevent Wall Clip is active, and prevents the player from seeing through geometry.  Setting this to 1.0 disables the feature entirely.
-
-#### Prevent Wall Clip - Speed Penalty Time
-Only if Prevent Wall Clip is enabled.  Sets the amount of time in seconds the player's arm swinging speed will be reduced while wall clipping.  Each contact with the wall will reset the timer to this value.
-
 ### Prevent Climbing Settings
 #### Prevent Climbing
 Prevents the player from climbing walls and steep slopes.
