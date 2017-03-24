@@ -46,7 +46,7 @@ Sure can.  [The ArmSwinger Tutorial series](https://www.youtube.com/playlist?lis
 ## Where can I get ArmSwinger?
 The latest version of ArmSwinger will always be available on [GitHub](https://github.com/ElectricNightOwl/ArmSwinger).
 
-If you'd like to support the continued development of ArmSwinger, a version of the library is also available on the [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/67602) for a small fee.  Your purchase on The Unity Asset Store also includes priority e-mail support.
+If you'd like to support ArmSwinger, a version of the library is also available on the [Unity Asset Store](https://www.assetstore.unity3d.com/#!/content/67602) for a small fee.  Your purchase on The Unity Asset Store also includes priority e-mail support.
 
 There is no difference in script features, functionality, or documentation between the two versions.  The Unity Asset Store package does include an example scene not available on GitHub.  This scene features a series of locomotion-related obstacles and tests, as well as an in-game ArmSwing settings panel to try different options instantly.
 
@@ -135,15 +135,15 @@ Options:
 Only if Arm Swing Navigation is enabled.  Determines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.
 
 - Both Buttons Both Controllers
- - Activate by pushing both controller buttons.  Both controllers are used for speed/direction.
+  - Activate by pushing both controller buttons.  Both controllers are used for speed/direction.
 - Left Button Both Controllers
- - Activate by pushing left controller button.  Both controllers are used for speed/direction.
+  - Activate by pushing left controller button.  Both controllers are used for speed/direction.
 - Right Button Both Controllers
- - Activate by pushing right controller button.  Both controllers are used for speed/direction.
+  - Activate by pushing right controller button.  Both controllers are used for speed/direction.
 - One Button Same Controller
- - Activate by pushing either controller button.  That controller is used for speed/direction.  Can be combined with the other controller.
+  - Activate by pushing either controller button.  That controller is used for speed/direction.  Can be combined with the other controller.
 - One Button Same Controller Exclusive
- - Activate by pushing either controller button.  That controller is used for speed/direction.  Pushing the button on the other controller will have no effect until the first controller button is released.
+  - Activate by pushing either controller button.  That controller is used for speed/direction.  Pushing the button on the other controller will have no effect until the first controller button is released.
 
 #### Arm Swing - Controller To Movement Curve
 Only if Arm Swing Navigation is enabled.  Curve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is "Arm Swing - Controller Speed For Max Speed" (controller movement) and "Arm Swing - Max Speed" (virtual momvement).
@@ -175,11 +175,11 @@ The purpose of Controller Smoothing is to eliminate this single-frame controller
 #### Controller Smoothing - Mode
 Only if Controller Smoothing is enabled.  Determines how controller smoothing calculates the smoothed movement value used by arm swinging.
 - Lowest
- - Use the lowest value in the cache.  Should only be used with small cache sizes.
+  - Use the lowest value in the cache.  Should only be used with small cache sizes.
 - Average
- - Use the average of all values in the cache.
+  - Use the average of all values in the cache.
 - Average Minus Highest
- - Use the average of all values in the cache, but disregard the highest value.  When a controller jitters, the value change in that frame is almost always higher than normal values and will be discarded.
+  - Use the average of all values in the cache, but disregard the highest value.  When a controller jitters, the value change in that frame is almost always higher than normal values and will be discarded.
  
 #### Controller Smoothing - Cache Size
 Only if Controller Smoothing is enabled.  Sets the number of calculated controller movements to keep in the cache.  Setting this number too low may allow a jittering controller to cause jerky movements for the player.  Setting this number too high increases lag time from controller movement to camera rig movement.
@@ -242,9 +242,9 @@ Any object that your player might be able to stick their head into should be in 
 #### Prevent Wall Clip - Mode
 Only if Prevent Wall Clip is enabled.  Changes how Prevent Wall Clip reacts when the player attempts to clip into a wall.
 - Rewind
- - Fade out, rewind rewindrewindNumSavedPositionsToRewind postitions, fade back in.
+  - Fade out, rewind rewindrewindNumSavedPositionsToRewind postitions, fade back in.
 - Push Back
- - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot enter the wall.
+  - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot enter the wall.
 
 #### Prevent Wall Clip - Headset Collider Radius
 Only if Prevent Wall Clip is enabled.  Sets the radius of the sphere collider used to detect the headset entering geometry.
@@ -283,16 +283,16 @@ Affected by [General - Scale World Units To Camera Rig Scale](#general-scale-wor
 #### Instant Height - Climb Prevention Mode
 Only if Prevent Climbing is enabled.  Changes how Prevent Climbing reacts when a player tried to instantly climb greater than instantHeightMaxChange.
 - Rewind
- - Fade out, rewind rewindNumSavedPositionsToRewind postitions, fade back in.
+  - Fade out, rewind rewindNumSavedPositionsToRewind postitions, fade back in.
 - Push Back
- - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+  - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
 
 #### Instant Height - Fall Prevention Mode
 Only if Prevent Falling is enabled.  Changes how Prevent Falling reacts when a player tried to instantly fall greater than instantHeightMaxChange.
 - Rewind
- - Fade out, rewind rewindNumSavedPositionsToRewind postitions, fade back in.
+  - Fade out, rewind rewindNumSavedPositionsToRewind postitions, fade back in.
 - Push Back
- - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
+  - Do not allow the player to make the move.  Instead, adjust the position of the play area so that they cannot fall down.
 
 ### Check Settings
  
