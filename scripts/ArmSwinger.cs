@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 public class ArmSwinger : MonoBehaviour {
 
@@ -19,16 +20,19 @@ public class ArmSwinger : MonoBehaviour {
 	public bool generalScaleWorldUnitsToCameraRigScale = false;
 	[Tooltip("General - Auto Adjust Fixed Timestep\n\nIn order for ArmSwinger to handle movement and wall collisions correctly, Time.fixedDeltaTime must be 0.0111 (90 per second) or less.  If this feature is enabled, the setting will be adjusted automatically if it is higher than 0.0111.  If disabled, an error will be generated but the value will not be changed.\n\n(Default: true)")]
 	public bool generalAutoAdjustFixedTimestep = true;
+	[Tooltip("General - Set Player prefab's head collider to dynamic rigid body")]
+	public bool generalSetPlayerHeadColliderDynamic = true;
 
 	// Arm Swing Settings
 	[Header("Arm Swing Settings")]
 	[Tooltip("Arm Swing - Navigation\n\nEnables variable locomotion using the controllers to determine speed and direction.  Activated according to the selected Mode. \n\n(Default: true)")]
 	public bool armSwingNavigation = true;
+
 	[SerializeField]
 	[Tooltip("Arm Swing - Button\nOnly if Arm Swing Navigation is enabled\n\nDefines which controller button is used to activate ArmSwinger.  The button is the same on both controllers.\n\n(Default: Grip button)")]
 	private ControllerButton _armSwingButton = ControllerButton.Grip;
 	[SerializeField]
-	[Tooltip("Arm Swing - Mode\nOnly if Arm Swing Navigation is enabled\n\nDetermines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.\n\nBoth Buttons Both Controllers - Activate by pushing both buttons on both controllers.  Both controllers are used for speed/direction.\n\nLeft Button Both Controllers - Activate by pushing the left controller button.  Both controllers are used for speed/direction.\n\nRight Button Both Controllers - Activate by pushing the right controller button.  Both controllers are used for speed/direction.\n\nOne Button Same Controller - Activate by pushing either controller's button.  That controller is used for speed/direction.  Can be combined with the other controller.\n\nOne Button Same Controller Exclusive - Activate by pushing either controller's button.  That controller is used for speed/direction.  Squeezing the button on the other controller will have no effect until the first controller button is released.\n\n(Default: One Button Same Controller)")]
+	[Tooltip("Arm Swing - Mode\nOnly if Arm Swing Navigation is enabled\n\nDetermines what is necessary to activate arm swing locomotion, and what controller is used when determining speed/direction.\n\nBoth Buttons Both Controllers - Activate by pushing both buttons on both controllers.  Both controllers are used for speed/direction.\n\nLeft Button Both Controllers - Activate by pushing the left controller button.  Both controllers are used for speed/direction.\n\nRight Button Both Controllers - Activate by pushing the right controller button.  Both controllers are used for speed/direction.\n\nOne Button Same Controller - Activate by pushing either controller's button.  That controller is used for speed/direction.  Can be combined with the other controller.\n\nOne Button Same Controller Exclusive - Activate by pushing either controller's button.  That controller is used for speed/direction.  Squeezing the button on the other controller will have no effect until the first controller button is released.\n\nLeft(Right)Touchpad - Activate by touching  left(right) Touchpad. Move direction decided by touch position \n\n(Default: One Button Same Controller)")]
 	private ArmSwingMode _armSwingMode = ArmSwingMode.OneButtonSameController;
 	[Tooltip("Arm Swing - Controller To Movement Curve\nOnly if Arm Swing Navigation is enabled.\n\nCurve that determines how much a given controller change translates into camera rig movement.  The far left of the curve is no controller movement and no virtual movement.  The far right is Controller Speed For Max Speed (controller movement) and Max Speed (virtual momvement).\n\n(Default: Linear)")]
 	public AnimationCurve armSwingControllerToMovementCurve = new AnimationCurve(new Keyframe(0, 0, 1, 1), new Keyframe(1, 1, 1, 1));
@@ -174,7 +178,9 @@ public class ArmSwinger : MonoBehaviour {
 		LeftButtonBothControllers,
 		RightButtonBothControllers,
 		OneButtonSameController,
-		OneButtonSameControllerExclusive
+		OneButtonSameControllerExclusive,
+		LeftTouchpad,
+		RightTouchpad,
 	};
 
 	public enum ControllerButton {
@@ -271,16 +277,26 @@ public class ArmSwinger : MonoBehaviour {
 	private bool leftButtonPressed = false;
 	private bool rightButtonPressed = false;
 
+	private bool leftTouchpadTouched = false;
+	private bool leftTouchpadPressed = false;
+	private Vector2 leftTouchPosition=Vector2.zero;
+	private bool rightTouchpadTouched = false;
+	private bool rightTouchpadPressed = false;
+	private Vector2 rightTouchPosition=Vector2.zero;
+
+
 	//// Controllers ////
 	private SteamVR_ControllerManager controllerManager;
-	private GameObject leftControllerGameObject;
-	private GameObject rightControllerGameObject;
 	private SteamVR_TrackedObject leftControllerTrackedObj;
 	private SteamVR_TrackedObject rightControllerTrackedObj;
 	private SteamVR_Controller.Device leftController;
 	private SteamVR_Controller.Device rightController;
-	private int leftControllerIndex;
-	private int rightControllerIndex;
+	private int leftControllerIndex=-1;
+	private int rightControllerIndex=-1;
+	
+	private GameObject leftControllerGameObject;
+	private GameObject rightControllerGameObject;
+	private Player player;
 
 	// Wall Clip tracking
 	[HideInInspector]
@@ -304,19 +320,45 @@ public class ArmSwinger : MonoBehaviour {
 
 	// Camera Rig scaling
 	private float cameraRigScaleModifier = 1.0f;
-	
+
+	void AssignHands(){
+		if (player.leftHand != null)
+			leftControllerGameObject = player.leftHand.gameObject;
+		else if (player.rightHand != null)
+			leftControllerGameObject = player.rightHand.otherHand.gameObject;
+		else
+			leftControllerGameObject = player.hands [0].gameObject;
+
+		if (player.rightHand != null)
+			rightControllerGameObject = player.rightHand.gameObject;
+		else if (player.leftHand != null)
+			rightControllerGameObject = player.leftHand.otherHand.gameObject;
+		else
+			rightControllerGameObject = player.hands [1].gameObject;
+	}
+
 	/****** INITIALIZATION ******/
 	void Awake() {
 
 		// Find an assign components and objects
-		controllerManager = this.GetComponent<SteamVR_ControllerManager>();
-		leftControllerGameObject = controllerManager.left;
-		rightControllerGameObject = controllerManager.right;
-		leftControllerTrackedObj = leftControllerGameObject.GetComponent<SteamVR_TrackedObject>();
-		rightControllerTrackedObj = rightControllerGameObject.GetComponent<SteamVR_TrackedObject>();
+ 
+		player = GetComponent<Player> ();
+		//Decide Whether it is attached to a Player or a CameraRig prefab
+		if(player!=null){
+			AssignHands ();
+			headsetGameObject = player.headCollider.gameObject;
+			cameraRigGameObject = player.gameObject;
+		}else{
+			controllerManager = this.GetComponent<SteamVR_ControllerManager>();
+			leftControllerGameObject = controllerManager.left;
+			rightControllerGameObject = controllerManager.right;
+			leftControllerTrackedObj = leftControllerGameObject.GetComponent<SteamVR_TrackedObject>();
+			rightControllerTrackedObj = rightControllerGameObject.GetComponent<SteamVR_TrackedObject>();
 
-		headsetGameObject = GameObject.FindObjectOfType<SteamVR_Camera>().gameObject;
-		cameraRigGameObject = GameObject.FindObjectOfType<SteamVR_ControllerManager>().gameObject;
+			headsetGameObject = GameObject.FindObjectOfType<SteamVR_Camera>().gameObject;
+			cameraRigGameObject = GameObject.FindObjectOfType<SteamVR_ControllerManager>().gameObject;
+		}
+
 
 		// Determine the Steam VR button for ArmSwinging
 		steamVRArmSwingButton = convertControllerButtonToSteamVRButton(armSwingButton);
@@ -372,6 +414,9 @@ public class ArmSwinger : MonoBehaviour {
 		}
 
 		// Store controller button states
+		if(player!=null)
+			AssignHands ();
+		
 		getControllerButtons();
 
 		// reset this frame counters
@@ -424,8 +469,8 @@ public class ArmSwinger : MonoBehaviour {
     void verifySettings() {
 
         // Camera Rig checking
-        if (!this.GetComponent<SteamVR_ControllerManager>()) {
-            Debug.LogError("ArmSwinger.verifySettings():: ArmSwinger is applied on a GameObject that is not a SteamVR CameraRig, or is a CameraRig without a SteamVR Controller Manager.  Please review the ArmSwinger instructions.  ArmSwinger will fail.");
+        if (player==null && !this.GetComponent<SteamVR_ControllerManager>()) {
+            Debug.LogError("ArmSwinger.verifySettings():: ArmSwinger is applied on a GameObject that is not a SteamVR CameraRig, or is a CameraRig without a SteamVR Controller Manager or Player.  Please review the ArmSwinger instructions.  ArmSwinger will fail.");
         }
 
         // Rewind Settings
@@ -483,6 +528,12 @@ public class ArmSwinger : MonoBehaviour {
 			case ArmSwingMode.OneButtonSameControllerExclusive:
 				movedThisFrame = swingOneButtonSameControllerExclusive(ref movementAmount, ref movementRotation);
 				break;
+			case ArmSwingMode.LeftTouchpad:
+				movedThisFrame=swingLeftRightTouchpad(ref movementAmount, ref movementRotation);
+				break;
+			case ArmSwingMode.RightTouchpad:
+				movedThisFrame=swingLeftRightTouchpad(ref movementAmount, ref movementRotation);
+				break;
 		}
 
 		if (movedThisFrame) {
@@ -519,7 +570,63 @@ public class ArmSwinger : MonoBehaviour {
 			return Vector3.zero;
 		}
 	}
+	bool swingLeftRightTouchpad(ref float movement, ref Quaternion rotation) {
 
+		if (armSwingMode== ArmSwingMode.LeftTouchpad && leftTouchpadTouched ||
+			armSwingMode== ArmSwingMode.RightTouchpad && rightTouchpadTouched) {
+
+			// Find the change in controller position since last Update()
+			float leftControllerChange = Vector3.Distance(leftControllerPreviousLocalPosition, leftControllerLocalPosition);
+			float rightControllerChange = Vector3.Distance(rightControllerPreviousLocalPosition, rightControllerLocalPosition);
+
+			// Calculate what camera rig movement the change should be converted to
+			float leftMovement = calculateMovement(armSwingControllerToMovementCurve, leftControllerChange, armSwingControllerSpeedForMaxSpeed, armSwingMaxSpeed);
+			float rightMovement = calculateMovement(armSwingControllerToMovementCurve, rightControllerChange, armSwingControllerSpeedForMaxSpeed, armSwingMaxSpeed);
+
+			// Controller movement is the average of the two controllers' change times the both controllers coefficient
+			float controllerMovement = (leftMovement + rightMovement) / 2 * armSwingBothControllersCoefficient;
+
+			// If movingInertia is enabled, the higher of inertia or controller movement is used
+			if (movingInertia) {
+				movement = movingInertiaOrControllerMovement(controllerMovement);
+			}
+			else {
+				movement = controllerMovement;
+			}
+			
+			Transform t;
+			Vector2 i;
+			if (armSwingMode== ArmSwingMode.LeftTouchpad){
+				t=leftControllerGameObject.transform;
+				i=leftTouchPosition;
+			}
+			else
+			{
+				t=rightControllerGameObject.transform;
+				i=rightTouchPosition;
+			}
+			var ii = i.x * t.right + i.y * t.forward;
+			var v = Quaternion.FromToRotation (t.up, Vector3.up) * ii;
+
+			movement *= v.magnitude;
+			rotation = Quaternion.FromToRotation (Vector3.forward, v);
+
+			return true;
+		}
+		// If stopping inertia is enabled
+		else if (stoppingInertia && latestArtificialMovement != 0) {
+
+			// The rotation is the cached one
+			rotation = latestArtificialRotation;
+			// The stopping movement is calculated using a curve, the latest movement, last frame's deltaTime, max speed, and the stop time for max speed
+			movement = inertiaMovementChange(stoppingInertiaCurve, latestArtificialMovement, previousTimeDeltaTime, armSwingMaxSpeed, stoppingInertiaTimeToStopAtMaxSpeed);
+
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	// Arm Swing when armSwingMode is BothButtonsBothControllers
 	bool swingBothButtonsBothControllers(ref float movement, ref Quaternion rotation) {
 		if (leftButtonPressed && rightButtonPressed) {
@@ -1439,33 +1546,52 @@ public class ArmSwinger : MonoBehaviour {
 
 	// Sets the button variables each frame
 	void getControllerButtons() {
-		// Left
-		int newLeftControllerIndex = (int) leftControllerTrackedObj.index;
-
-		if (newLeftControllerIndex != -1 && newLeftControllerIndex != leftControllerIndex) {
-			leftControllerIndex = newLeftControllerIndex;
-			leftController = SteamVR_Controller.Input(leftControllerIndex);
+		if(player!=null){
+			leftController = player.leftController;
+			rightController = player.rightController;
 		}
+		else
+		{
+			// Left
+			int newLeftControllerIndex = (int) leftControllerTrackedObj.index;
 
-		if (newLeftControllerIndex != -1) {
-			leftButtonPressed = leftController.GetPress(steamVRArmSwingButton);
+			if (newLeftControllerIndex != -1 && newLeftControllerIndex != leftControllerIndex) {
+				leftControllerIndex = newLeftControllerIndex;
+				leftController = SteamVR_Controller.Input(leftControllerIndex);
+			}
+
+			if (newLeftControllerIndex == -1) 
+				leftController=null;
+
+			//Right
+			int newRightControllerIndex = (int) rightControllerTrackedObj.index;
+
+			if (newRightControllerIndex != -1 && newRightControllerIndex != rightControllerIndex) {
+				rightControllerIndex = newRightControllerIndex;
+				rightController = SteamVR_Controller.Input(rightControllerIndex);
+			}
+
+			if (newRightControllerIndex == -1) 
+				rightController=null;
 		}
-		else {
+		if (leftController != null) {
+			leftTouchpadTouched = leftController.GetTouch (EVRButtonId.k_EButton_SteamVR_Touchpad);
+			leftTouchpadPressed = leftController.GetPress (EVRButtonId.k_EButton_SteamVR_Touchpad);
+			leftTouchPosition = leftController.GetAxis (EVRButtonId.k_EButton_SteamVR_Touchpad);
+			leftButtonPressed = leftController.GetPress (steamVRArmSwingButton);
+		} else {
+			leftButtonPressed = false;
+			leftTouchPosition = Vector2.zero;
 			leftButtonPressed = false;
 		}
-
-		//Right
-		int newRightControllerIndex = (int) rightControllerTrackedObj.index;
-
-		if (newRightControllerIndex != -1 && newRightControllerIndex != rightControllerIndex) {
-			rightControllerIndex = newRightControllerIndex;
-			rightController = SteamVR_Controller.Input(rightControllerIndex);
-		}
-
-		if (newRightControllerIndex != -1) {
-			rightButtonPressed = rightController.GetPress(steamVRArmSwingButton);
-		}
-		else {
+		if (rightController != null) {
+			rightTouchpadTouched = rightController.GetTouch (EVRButtonId.k_EButton_SteamVR_Touchpad);
+			rightTouchpadPressed = rightController.GetPress (EVRButtonId.k_EButton_SteamVR_Touchpad);
+			rightTouchPosition = rightController.GetAxis (EVRButtonId.k_EButton_SteamVR_Touchpad);
+			rightButtonPressed = rightController.GetPress (steamVRArmSwingButton);
+		} else {
+			rightButtonPressed = false;
+			rightTouchPosition = Vector2.zero;
 			rightButtonPressed = false;
 		}
 	}
@@ -1652,6 +1778,11 @@ public class ArmSwinger : MonoBehaviour {
 
 	// Adds the Collider script to the headset if it doesn't already exist
 	void setupHeadsetCollider() {
+		if (player != null && generalSetPlayerHeadColliderDynamic) {
+			var rb = headsetGameObject.GetComponent<Rigidbody> ();
+			rb.isKinematic = false;
+			rb.constraints = RigidbodyConstraints.FreezeAll;
+		}
 		headsetCollider = headsetGameObject.GetComponent<HeadsetCollider>();
 		if (!headsetCollider) {
 			headsetCollider = headsetGameObject.AddComponent<HeadsetCollider>();
