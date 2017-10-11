@@ -41,7 +41,7 @@ public class ArmSwinger : MonoBehaviour {
 	private float _armSwingControllerSpeedForMaxSpeed = 3f;
 	[SerializeField]
 	[Tooltip("Arm Swing - Max Speed\nOnly if Arm Swing Navigation is enabled\n\nThe fastest base speed (in world units) a player can travel when moving controllers at Controller Movement Per Second For Max Speed.  The actual max speed of the player will depend on the both/single controller coefficients you configure.\n\n(Default: 8)")]
-	private float _armSwingMaxSpeed = 8;
+	private float _armSwingMaxSpeed = 8; 
 	[Tooltip("Arm Swing - Both Controllers Coefficient\nOnly if Arm Swing Navigation is enabled and Swing Activation Mode allows both controllers to be used for arm swinging.\n\nUsed to boost or nerf the player's speed when using boths controllers for arm swinging.  A value of 1.0 will not modify the curve / max speed calculation.\n\n(Default: 1.0)")]
 	[Range(0f, 10f)]
 	[SerializeField]
